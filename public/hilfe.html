@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vorstands-App – Hilfe & Bedienungsanleitung</title>
+  <style>
+    :root {
+      --htv-blue: #1a56db;
+      --htv-blue-light: #3b82f6;
+      --htv-blue-bg: #eff6ff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: #1e293b;
+      background: #f8fafc;
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    nav {
+      width: 240px;
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 24px 0 40px;
+    }
+
+    nav .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      margin-bottom: 16px;
+    }
+
+    nav .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--htv-blue);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    nav .logo-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+      line-height: 1.3;
+    }
+
+    nav .logo-sub {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    nav ul {
+      list-style: none;
+      padding: 0 8px;
+    }
+
+    nav ul li a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #475569;
+      font-size: 13px;
+      transition: background 0.15s;
+    }
+
+    nav ul li a:hover,
+    nav ul li a.active {
+      background: var(--htv-blue-bg);
+      color: var(--htv-blue);
+    }
+
+    nav ul li a .icon {
+      font-size: 15px;
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    nav .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #94a3b8;
+      padding: 12px 20px 4px;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 48px;
+      max-width: 860px;
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 48px 0 16px;
+      padding-top: 48px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    h2:first-of-type {
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: none;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 24px 0 8px;
+    }
+
+    p {
+      color: #475569;
+      margin-bottom: 12px;
+    }
+
+    p:last-child { margin-bottom: 0; }
+
+    ul, ol {
+      color: #475569;
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    li { margin-bottom: 4px; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, var(--htv-blue) 0%, #2563eb 100%);
+      border-radius: 16px;
+      padding: 32px 36px;
+      color: #fff;
+      margin-bottom: 0;
+    }
+
+    .hero h1 { color: #fff; font-size: 22px; margin-bottom: 6px; }
+    .hero p { color: rgba(255,255,255,0.85); margin: 0; font-size: 14px; }
+
+    /* Section anchor offset */
+    section {
+      scroll-margin-top: 24px;
+    }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+
+    /* Info / tip boxes */
+    .box {
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+
+    .box-info  { background: #eff6ff; border-left: 3px solid var(--htv-blue); color: #1e40af; }
+    .box-tip   { background: #f0fdf4; border-left: 3px solid #16a34a; color: #166534; }
+    .box-warn  { background: #fffbeb; border-left: 3px solid #d97706; color: #92400e; }
+    .box-privacy { background: #f5f3ff; border-left: 3px solid #7c3aed; color: #3730a3; }
+
+    /* Role badges */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+
+    .badge-admin   { background: #f3e8ff; color: #7c3aed; }
+    .badge-vorstand { background: #dbeafe; color: #1d4ed8; }
+    .badge-gast    { background: #f1f5f9; color: #64748b; }
+
+    /* Comparison table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin: 16px 0;
+    }
+
+    th {
+      background: #f8fafc;
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .check  { color: #16a34a; font-weight: 600; }
+    .cross  { color: #dc2626; font-weight: 600; }
+    .neutral { color: #d97706; font-weight: 600; }
+
+    /* Steps */
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+      color: #475569;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      background: var(--htv-blue);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* Feature grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .feature-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .feature-card .feat-icon {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .feature-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+
+    .feature-card p {
+      font-size: 13px;
+      margin: 0;
+    }
+
+    /* Privacy section highlight */
+    .privacy-header {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      border-radius: 12px;
+      padding: 24px 28px;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+
+    .privacy-header h2 {
+      color: #fff;
+      border: none;
+      padding: 0;
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .privacy-header p { color: rgba(255,255,255,0.85); margin: 0; font-size: 14px; }
+
+    /* Version footer */
+    .footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      nav { display: none; }
+      main { padding: 24px 20px; }
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Seitennavigation -->
+  <nav>
+    <div class="logo">
+      <div class="logo-icon">HTV</div>
+      <div>
+        <div class="logo-title">Vorstands-App</div>
+        <div class="logo-sub">Hilfe & Anleitung</div>
+      </div>
+    </div>
+
+    <div style="padding: 0 12px 16px;">
+      <a href="/Htv-vorstands-app/" style="
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: 8px;
+        background: var(--htv-blue-bg);
+        color: var(--htv-blue);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: background 0.15s;
+      " onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='var(--htv-blue-bg)'">
+        <span>← Zurück zur Vorstands-App</span>
+      </a>
+    </div>
+
+    <div class="section-label">Erste Schritte</div>
+    <ul>
+      <li><a href="#uebersicht"><span class="icon">🏠</span> Übersicht</a></li>
+      <li><a href="#login"><span class="icon">🔐</span> Anmelden</a></li>
+      <li><a href="#rollen"><span class="icon">👤</span> Rollen</a></li>
+    </ul>
+
+    <div class="section-label">Funktionen</div>
+    <ul>
+      <li><a href="#chat"><span class="icon">💬</span> Chat</a></li>
+      <li><a href="#aufgaben"><span class="icon">✅</span> Aufgaben</a></li>
+      <li><a href="#kalender"><span class="icon">📅</span> Kalender</a></li>
+      <li><a href="#sitzungen"><span class="icon">📋</span> Sitzungen</a></li>
+      <li><a href="#protokolle"><span class="icon">📁</span> Protokolle</a></li>
+      <li><a href="#admin"><span class="icon">⚙️</span> Mitglieder</a></li>
+      <li><a href="#profil"><span class="icon">🙍</span> Profil</a></li>
+    </ul>
+
+    <div class="section-label">Datenschutz</div>
+    <ul>
+      <li><a href="#datenschutz"><span class="icon">🔒</span> Datenschutz</a></li>
+      <li><a href="#vergleich-teams"><span class="icon">⚖️</span> Vergleich Teams</a></li>
+    </ul>
+
+    <div class="section-label">Dokumentation</div>
+    <ul>
+      <li><a href="./verfahrensdokumentation.html"><span class="icon">📂</span> Verfahrensdokumentation</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hauptinhalt -->
+  <main>
+
+    <!-- Hero -->
+    <div class="hero">
+      <h1>📖 Bedienungsanleitung – Vorstands-App</h1>
+      <p>Helmstedter Tennis-Verein e.V. · Interne Kommunikations- und Organisationsplattform</p>
+    </div>
+
+    <!-- Übersicht -->
+    <section id="uebersicht">
+      <h2>Übersicht</h2>
+      <p>Die Vorstands-App ist die zentrale Plattform für die interne Kommunikation und Organisation des HTV-Vorstands. Sie läuft vollständig im Webbrowser und ist auf allen Geräten (PC, Tablet, Smartphone) nutzbar.</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feat-icon">💬</div>
+          <h4>Chat</h4>
+          <p>Channels für den Vorstand, gemeinsame Themen mit Gästen und direkte Nachrichten zwischen Mitgliedern.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feat-icon">✅</div>
+          <h4>Aufgaben</h4>
+          <p>Todos anlegen, priorisieren, zuweisen und als erledigt markieren.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feat-icon">📅</div>
+          <h4>Kalender</h4>
+          <p>Vereinstermine verwalten – mit Wiederholungsregeln, Erinnerungen und optionaler Google-Kalender-Synchronisation.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feat-icon">📋</div>
+          <h4>Sitzungen</h4>
+          <p>Vorstandssitzungen mit Tagesordnung planen und archivieren.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feat-icon">📁</div>
+          <h4>Protokolle</h4>
+          <p>Direkter Zugriff auf den gemeinsamen Google-Drive-Ordner mit allen Protokollen.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feat-icon">⚙️</div>
+          <h4>Mitgliederverwaltung</h4>
+          <p>Neue Vorstandsmitglieder einladen, Rollen vergeben, Zugänge verwalten (nur Admins).</p>
+        </div>
+      </div>
+
+      <div class="box box-info">
+        <strong>Erreichbarkeit:</strong> Die App ist unter <strong>helmstedtertv.github.io/Htv-vorstands-app/</strong> erreichbar. Kein App-Download notwendig – der Browser genügt.
+      </div>
+    </section>
+
+    <!-- Anmelden -->
+    <section id="login">
+      <h2>🔐 Anmelden</h2>
+
+      <h3>Erstmalige Anmeldung</h3>
+      <p>Neue Mitglieder erhalten eine Einladungs-E-Mail mit einem Link zum Passwort setzen. Nach dem Setzen des Passworts kann man sich direkt mit E-Mail und Passwort anmelden.</p>
+
+      <ol class="steps">
+        <li>Einladungs-E-Mail öffnen und auf den Link klicken.</li>
+        <li>Ein persönliches Passwort setzen (mindestens 6 Zeichen).</li>
+        <li>Auf <strong>helmstedtertv.github.io/Htv-vorstands-app/</strong> mit E-Mail und Passwort anmelden.</li>
+      </ol>
+
+      <h3>Passwort vergessen</h3>
+      <p>Auf der Anmeldeseite auf <strong>„Passwort vergessen?"</strong> klicken, E-Mail-Adresse eingeben – es wird ein Reset-Link gesendet.</p>
+
+      <div class="box box-tip">
+        <strong>Tipp:</strong> Die App kann auf dem Smartphone als Verknüpfung auf dem Homescreen gespeichert werden: Im Browser auf „Zum Startbildschirm hinzufügen" tippen.
+      </div>
+    </section>
+
+    <!-- Rollen -->
+    <section id="rollen">
+      <h2>👤 Rollen & Berechtigungen</h2>
+      <p>Jedes Mitglied hat eine der folgenden Rollen. Diese bestimmt, was sichtbar und bearbeitbar ist.</p>
+
+      <div class="card">
+        <p><span class="badge badge-admin">Admin</span></p>
+        <p>Vollzugriff auf alle Funktionen einschließlich Mitgliederverwaltung. Kann neue Mitglieder einladen, Rollen ändern und Zugänge entfernen.</p>
+      </div>
+
+      <div class="card">
+        <p><span class="badge badge-vorstand">Vorstand</span></p>
+        <p>Zugriff auf Chat, Aufgaben, Kalender, Sitzungen und Protokolle. Kann Inhalte erstellen, bearbeiten und löschen. Kein Zugriff auf die Mitgliederverwaltung.</p>
+      </div>
+
+      <div class="card">
+        <p><span class="badge badge-gast">Gast</span></p>
+        <p>Lesezugriff auf freigegebene Channels. Kann keine Aufgaben, Termine oder Sitzungen anlegen. Sinnvoll für Ehrenmitglieder oder externe Ansprechpartner.</p>
+      </div>
+
+      <div class="box box-info">
+        Rollen können jederzeit von einem Admin unter <strong>Mitglieder → Rolle ändern</strong> angepasst werden.
+      </div>
+    </section>
+
+    <!-- Chat -->
+    <section id="chat">
+      <h2>💬 Chat</h2>
+      <p>Der Chat ist in Channels (Themenräume) und Direktnachrichten unterteilt.</p>
+
+      <h3>Channels</h3>
+      <p>Channels werden in der linken Sidebar angezeigt. Es gibt drei Channel-Typen:</p>
+      <ul>
+        <li><strong>Vorstand</strong> – nur Vorstandsmitglieder und Admins</li>
+        <li><strong>Vorstand + Gäste</strong> – auch für Gast-Mitglieder sichtbar</li>
+        <li><strong>Projekt</strong> – für spezifische Themen oder Projekte</li>
+      </ul>
+
+      <h3>Nachricht schreiben</h3>
+      <ol class="steps">
+        <li>Gewünschten Channel in der Sidebar auswählen.</li>
+        <li>Text ins Eingabefeld unten tippen.</li>
+        <li>Mit <strong>Enter</strong> senden (oder auf den Senden-Button klicken).</li>
+      </ol>
+
+      <h3>Dateien senden</h3>
+      <p>Über das Büroklammer-Symbol im Eingabefeld können Bilder und Dokumente angehängt werden. Die Dateien werden sicher in Firebase Storage gespeichert.</p>
+
+      <h3>Reaktionen</h3>
+      <p>Mit dem Emoji-Symbol neben einer Nachricht können Reaktionen hinzugefügt werden (ähnlich wie in Teams oder Slack).</p>
+
+      <h3>Direktnachrichten (DM)</h3>
+      <p>Unter „Direktnachrichten" in der Sidebar können persönliche Gespräche mit einzelnen Mitgliedern geführt werden. Diese Konversationen sind nur für die jeweiligen Teilnehmer sichtbar.</p>
+
+      <div class="box box-tip">
+        <strong>Mobil:</strong> Auf dem Smartphone wird zuerst die Channel-Liste angezeigt. Nach Tippen auf einen Channel öffnet sich die Nachrichtenansicht. Mit dem Zurück-Pfeil kommt man wieder zur Liste.
+      </div>
+
+      <h3>Ungelesene Nachrichten</h3>
+      <p>Channels mit neuen Nachrichten werden in der Navigation mit einem blauen Punkt markiert.</p>
+    </section>
+
+    <!-- Aufgaben -->
+    <section id="aufgaben">
+      <h2>✅ Aufgaben</h2>
+      <p>Im Bereich „Aufgaben" können To-dos für den Vorstand angelegt, priorisiert und verwaltet werden.</p>
+
+      <h3>Neue Aufgabe anlegen</h3>
+      <ol class="steps">
+        <li>Auf <strong>„+ Neue Aufgabe"</strong> klicken.</li>
+        <li>Titel eingeben (Pflichtfeld).</li>
+        <li>Optional: Beschreibung, Priorität, Fälligkeitsdatum und Zuständige Person ausfüllen.</li>
+        <li>Auf <strong>„Erstellen"</strong> klicken oder <strong>Enter</strong> drücken.</li>
+      </ol>
+
+      <h3>Prioritäten</h3>
+      <ul>
+        <li>🔴 <strong>Hoch</strong> – dringende Aufgaben</li>
+        <li>🟡 <strong>Mittel</strong> – normale Aufgaben (Standard)</li>
+        <li>🟢 <strong>Niedrig</strong> – kann warten</li>
+      </ul>
+      <p>Aufgaben werden automatisch nach Priorität sortiert.</p>
+
+      <h3>Als erledigt markieren</h3>
+      <p>Auf den Kreis links neben dem Aufgabentitel klicken. Die Aufgabe wandert in den Tab „Erledigt". Durch erneutes Klicken kann sie wieder geöffnet werden.</p>
+
+      <h3>Aufgabe löschen</h3>
+      <p>Auf das Papierkorb-Symbol rechts klicken. Eine Bestätigung wird angefragt.</p>
+
+      <div class="box box-warn">
+        Gäste können Aufgaben nur lesen, nicht erstellen oder bearbeiten.
+      </div>
+    </section>
+
+    <!-- Kalender -->
+    <section id="kalender">
+      <h2>📅 Kalender</h2>
+      <p>Der Kalender zeigt alle Vereinstermine und unterstützt Wiederholungsregeln sowie eine optionale Verbindung mit Google Kalender.</p>
+
+      <h3>Neuen Termin anlegen</h3>
+      <ol class="steps">
+        <li>Auf <strong>„+ Termin"</strong> klicken.</li>
+        <li>Titel, Start- und Endzeit eingeben.</li>
+        <li>Optional: Ort, Beschreibung und Erinnerung (15 min / 30 min / 1 Std / 1 Tag).</li>
+        <li>Wiederholungsregel festlegen (täglich, wöchentlich, monatlich).</li>
+        <li>Auf <strong>„Speichern"</strong> klicken.</li>
+      </ol>
+
+      <h3>Wiederholungstermine</h3>
+      <p>Wiederholende Termine (z.B. monatliche Vorstandssitzung) werden mit dem Symbol ↻ markiert. Beim Löschen werden alle Instanzen der Wiederholung entfernt.</p>
+
+      <h3>Google Kalender Synchronisation</h3>
+      <p>Über den Button <strong>„Google Kalender"</strong> kann ein Google-Konto verknüpft werden. Danach:</p>
+      <ul>
+        <li>Termine aus Google Kalender werden <span style="color:#16a34a;font-weight:600;">grün</span> angezeigt.</li>
+        <li>Neue App-Termine werden automatisch in Google Kalender exportiert.</li>
+        <li>Mit dem Sync-Button wird der Google Kalender für den aktuellen Monat aktualisiert.</li>
+      </ul>
+
+      <div class="box box-tip">
+        Die Google-Kalender-Verbindung ist optional. Die App funktioniert vollständig auch ohne sie.
+      </div>
+
+      <h3>Tagesansicht</h3>
+      <p>Auf einen Tag im Kalender-Grid klicken, um alle Termine dieses Tages als Liste mit Details anzuzeigen.</p>
+
+      <h3>Nächste Termine</h3>
+      <p>Unterhalb des Kalenders wird automatisch eine Liste der nächsten anstehenden Termine (bis 3 Monate) angezeigt, solange kein Tag ausgewählt ist.</p>
+    </section>
+
+    <!-- Sitzungen -->
+    <section id="sitzungen">
+      <h2>📋 Sitzungen</h2>
+      <p>Im Bereich „Sitzungen" können Vorstandssitzungen geplant und mit einer Tagesordnung versehen werden.</p>
+
+      <h3>Neue Sitzung anlegen</h3>
+      <ol class="steps">
+        <li>In der linken Sidebar auf <strong>„+ Neue Sitzung"</strong> klicken.</li>
+        <li>Datum der Sitzung eingeben.</li>
+        <li>Auf <strong>„Erstellen"</strong> klicken.</li>
+      </ol>
+
+      <h3>Tagesordnung bearbeiten</h3>
+      <ol class="steps">
+        <li>Sitzung in der Sidebar auswählen.</li>
+        <li>Auf <strong>„Bearbeiten"</strong> in der Tagesordnungs-Karte klicken.</li>
+        <li>Tagesordnungspunkte mit Nummer, Bezeichnung, Zuständigem und Unterlagen ausfüllen.</li>
+        <li>Mit <strong>„+ Punkt hinzufügen"</strong> weitere Punkte ergänzen.</li>
+        <li>Auf <strong>„Speichern"</strong> klicken.</li>
+      </ol>
+
+      <h3>Sitzung abschließen</h3>
+      <p>Nach der Sitzung auf <strong>„Abschließen"</strong> klicken. Die Sitzung wird archiviert und ist weiterhin in der Jahresübersicht einsehbar, kann aber nicht mehr bearbeitet werden.</p>
+
+      <h3>Jahresübersicht</h3>
+      <p>In der linken Sidebar kann nach Jahr gefiltert werden. Alle Sitzungen des ausgewählten Jahres werden darunter angezeigt.</p>
+    </section>
+
+    <!-- Protokolle -->
+    <section id="protokolle">
+      <h2>📁 Protokolle</h2>
+      <p>Der Bereich „Protokolle" zeigt den gemeinsamen Google-Drive-Ordner des Vorstands direkt in der App an.</p>
+
+      <p>Protokolle können direkt aus dem eingebetteten Drive-Fenster geöffnet werden. Über den Button <strong>„In Google Drive öffnen"</strong> gelangt man zum vollständigen Drive-Ordner in einem neuen Tab – dort können auch Dateien hochgeladen oder bearbeitet werden.</p>
+
+      <div class="box box-info">
+        Für den Zugriff auf Protokolle ist ein Google-Konto mit Zugriff auf den HTV-Laufwerk-Ordner erforderlich. Der Zugang wird vom Admin koordiniert.
+      </div>
+    </section>
+
+    <!-- Admin -->
+    <section id="admin">
+      <h2>⚙️ Mitgliederverwaltung (Admin)</h2>
+      <p>Dieser Bereich ist nur für Mitglieder mit der Rolle <span class="badge badge-admin">Admin</span> sichtbar.</p>
+
+      <h3>Neues Mitglied einladen</h3>
+      <ol class="steps">
+        <li>Auf <strong>„Mitglied einladen"</strong> klicken.</li>
+        <li>Name und E-Mail-Adresse eingeben.</li>
+        <li>Rolle auswählen (Admin / Vorstand / Gast).</li>
+        <li>Auf <strong>„Einladung senden"</strong> klicken.</li>
+      </ol>
+      <p>Das eingeladene Mitglied erhält eine E-Mail mit einem Link zum Passwort setzen und kann sich anschließend direkt einloggen.</p>
+
+      <h3>Einladung erneut senden</h3>
+      <p>Bei Mitgliedern, die sich noch nicht eingeloggt haben (Status: „Noch nicht eingeloggt"), kann über das Refresh-Symbol eine neue Einladungs-E-Mail gesendet werden.</p>
+
+      <h3>Rolle ändern</h3>
+      <p>In der Mitgliederliste rechts neben jedem Mitglied das Dropdown-Menü nutzen, um die Rolle zu ändern. Änderungen werden sofort wirksam.</p>
+
+      <h3>Mitglied entfernen</h3>
+      <p>Über das Papierkorb-Symbol kann das App-Profil eines Mitglieds gelöscht werden. Hinweis: Der Firebase-Anmelde-Account bleibt technisch bestehen; das Mitglied hat aber keinen Zugriff mehr auf die App-Inhalte.</p>
+
+      <h3>Online-Status</h3>
+      <p>Ein grüner Punkt neben dem Avatar zeigt an, dass das Mitglied innerhalb der letzten 5 Minuten aktiv war.</p>
+    </section>
+
+    <!-- Profil -->
+    <section id="profil">
+      <h2>🙍 Profil</h2>
+      <p>Unter „Profil" können persönliche Einstellungen verwaltet werden:</p>
+      <ul>
+        <li><strong>Anzeigename</strong> ändern</li>
+        <li><strong>E-Mail-Benachrichtigungen</strong> aktivieren/deaktivieren (opt-in für neue Nachrichten)</li>
+        <li><strong>Passwort</strong> zurücksetzen</li>
+        <li><strong>Abmelden</strong></li>
+      </ul>
+    </section>
+
+    <!-- Datenschutz -->
+    <section id="datenschutz">
+      <div class="privacy-header">
+        <h2>🔒 Datenschutz</h2>
+        <p>Transparente Informationen darüber, welche Daten gespeichert werden und wo sie liegen.</p>
+      </div>
+
+      <h3>Welche Daten werden gespeichert?</h3>
+      <div class="card">
+        <p>Die App speichert ausschließlich Daten, die für den Betrieb notwendig sind:</p>
+        <ul>
+          <li><strong>Kontodaten:</strong> E-Mail-Adresse, Anzeigename, Rolle, Zeitstempel der letzten Aktivität</li>
+          <li><strong>Chat-Nachrichten:</strong> Text, Autor, Zeitstempel, hochgeladene Dateien</li>
+          <li><strong>Aufgaben:</strong> Titel, Beschreibung, Priorität, Zuständiger, Status</li>
+          <li><strong>Kalendertermine:</strong> Titel, Datum/Uhrzeit, Ort, Beschreibung, Wiederholungsregeln</li>
+          <li><strong>Sitzungen:</strong> Datum, Tagesordnungspunkte</li>
+        </ul>
+        <p style="margin-top:12px;">Es werden <strong>keine</strong> Zahlungsdaten, Standortdaten, Gerätedaten oder Werbeprofile gespeichert.</p>
+      </div>
+
+      <h3>Wo werden die Daten gespeichert?</h3>
+      <p>Die App nutzt <strong>Google Firebase</strong> (Produkt von Google LLC) als Backend:</p>
+      <ul>
+        <li><strong>Firebase Authentication</strong> – verwaltet Anmeldedaten (E-Mail, Passwort-Hash)</li>
+        <li><strong>Cloud Firestore</strong> – speichert alle strukturierten Daten (Nachrichten, Aufgaben, Termine etc.)</li>
+        <li><strong>Firebase Storage</strong> – speichert hochgeladene Dateien (Bilder, Dokumente)</li>
+      </ul>
+
+      <div class="box box-privacy">
+        <strong>Serverstandort:</strong> Die Daten werden in Google-Rechenzentren in <strong>Europa (Region europe-west1, Belgien)</strong> gespeichert. Der Datentransfer erfolgt verschlüsselt über HTTPS/TLS.
+      </div>
+
+      <h3>Wer hat Zugriff auf die Daten?</h3>
+      <ul>
+        <li><strong>Vorstandsmitglieder</strong> sehen Inhalte gemäß ihrer Rolle (siehe Abschnitt Rollen).</li>
+        <li>Direktnachrichten sind nur für die jeweiligen Gesprächspartner sichtbar.</li>
+        <li><strong>Google</strong> hat als Infrastrukturanbieter technischen Zugriff im Rahmen seiner Verarbeitungsbedingungen (Google Cloud DPA, DSGVO-konform mit EU-Standardvertragsklauseln).</li>
+        <li>Es gibt <strong>keine Weitergabe</strong> an Werbetreibende, Drittanbieter oder andere Vereine.</li>
+      </ul>
+
+      <h3>Wie lange werden Daten gespeichert?</h3>
+      <p>Daten bleiben gespeichert, solange der jeweilige Inhalt in der App vorhanden ist. Chat-Nachrichten, Aufgaben und Termine können manuell gelöscht werden. Wenn ein Mitglied aus der App entfernt wird, bleiben seine Beiträge (Nachrichten, Todos) mit dem gespeicherten Namen erhalten – nur das Anmelde-Profil wird gelöscht.</p>
+
+      <h3>Ihre Rechte (DSGVO)</h3>
+      <p>Als Nutzer der App haben Sie das Recht auf Auskunft, Berichtigung und Löschung Ihrer gespeicherten Daten. Wenden Sie sich hierfür an den App-Administrator. Eine Abmeldung und Datenlöschung kann jederzeit beantragt werden.</p>
+
+      <h3>Nachfolge & Zugangssicherung</h3>
+      <div class="box box-tip">
+        <strong>Gesichert:</strong> Beide Google-Konten – <strong>p.schinnerling@gmail.com</strong> und <strong>vorstand.htv@gmail.com</strong> – sind in allen vier Firebase-Projekten als <strong>Inhaber</strong> eingetragen. Ein Zugangsverlust bei einem Konto gefährdet den Betrieb der Apps nicht.
+      </div>
+    </section>
+
+    <!-- Vergleich Teams -->
+    <section id="vergleich-teams">
+      <h2>⚖️ Vergleich mit Microsoft Teams</h2>
+      <p>Viele Vereine und Organisationen nutzen Microsoft Teams. Hier ein sachlicher Vergleich der Datenschutz- und Nutzungsaspekte:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Kriterium</th>
+            <th>Vorstands-App (HTV)</th>
+            <th>Microsoft Teams</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Datenhoheit</strong></td>
+            <td><span class="check">✓</span> Daten liegen im eigenen Firebase-Projekt des HTV. Kein Fremdzugriff außer durch Google als Infrastrukturpartner.</td>
+            <td><span class="neutral">~</span> Daten liegen bei Microsoft (US-Konzern). DSGVO-Konformität über EU-Standardvertragsklauseln.</td>
+          </tr>
+          <tr>
+            <td><strong>Nutzerprofile & Werbung</strong></td>
+            <td><span class="check">✓</span> Keine Werbung, keine Verhaltensanalyse, kein Tracking über die App hinaus.</td>
+            <td><span class="neutral">~</span> Microsoft nutzt Nutzungsdaten zur Produktverbesserung. Keine Werbung in Teams selbst, jedoch umfangreiche Telemetrie.</td>
+          </tr>
+          <tr>
+            <td><strong>Datensparsamkeit</strong></td>
+            <td><span class="check">✓</span> Nur die minimal notwendigen Daten werden gespeichert – kein Anwesenheitstracking, kein Lese-Status pro Nachricht.</td>
+            <td><span class="cross">✗</span> Umfangreiche Metadaten werden erfasst: Anwesenheits­status, Lesebestätigungen, Login-Zeiten, Geräteinformationen.</td>
+          </tr>
+          <tr>
+            <td><strong>Serverstandort</strong></td>
+            <td><span class="check">✓</span> Europa (Belgien, Google Cloud).</td>
+            <td><span class="neutral">~</span> Abhängig vom Tenant-Setup, EU-Optionen verfügbar, aber nicht garantiert.</td>
+          </tr>
+          <tr>
+            <td><strong>Transparenz</strong></td>
+            <td><span class="check">✓</span> Open-Source-Code (GitHub). Jeder kann sehen, welche Daten gespeichert werden.</td>
+            <td><span class="cross">✗</span> Closed Source. Keine Einsicht in interne Datenverarbeitung möglich.</td>
+          </tr>
+          <tr>
+            <td><strong>Zugangssteuerung</strong></td>
+            <td><span class="check">✓</span> Nur explizit eingeladene Personen erhalten Zugang. Rollen werden manuell vergeben.</td>
+            <td><span class="neutral">~</span> Abhängig von der Organisation (Azure AD). Kann komplex werden.</td>
+          </tr>
+          <tr>
+            <td><strong>Lizenzkosten</strong></td>
+            <td><span class="check">✓</span> Kostenlos im Firebase Spark-Plan für typisches Vereinsvolumen.</td>
+            <td><span class="neutral">~</span> Kostenlose Basisversion verfügbar; Vollversion kostenpflichtig.</td>
+          </tr>
+          <tr>
+            <td><strong>Funktionsumfang</strong></td>
+            <td><span class="neutral">~</span> Auf Vereinsbedürfnisse zugeschnitten (Chat, Kalender, Sitzungen, Aufgaben).</td>
+            <td><span class="check">✓</span> Sehr umfangreich: Video-Calls, Office-Integration, umfangreiche Admin-Tools.</td>
+          </tr>
+          <tr>
+            <td><strong>Offline-Fähigkeit</strong></td>
+            <td><span class="cross">✗</span> Benötigt Internetverbindung.</td>
+            <td><span class="check">✓</span> Eingeschränkte Offline-Nutzung möglich.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="box box-privacy">
+        <strong>Fazit:</strong> Die Vorstands-App bietet für den Vereinseinsatz mehr Datenschutz und Transparenz als Teams, da weniger Metadaten gesammelt werden, der Quellcode offen einsehbar ist und die Daten im eigenen Projekt-Namespace verbleiben. Microsoft Teams ist funktional umfangreicher, speichert aber deutlich mehr Nutzungsdaten und erfordert Vertrauen in Microsofts Datenschutzzusagen.
+      </div>
+    </section>
+
+    <div style="margin-top: 40px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+      <div>
+        <div style="font-size: 14px; font-weight: 600; color: #1e293b;">📂 Verfahrensdokumentation</div>
+        <div style="font-size: 13px; color: #64748b; margin-top: 2px;">Technische Details zu allen HTV-Apps, Zugangsverwaltung und Nachfolge-Informationen</div>
+      </div>
+      <a href="./verfahrensdokumentation.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--htv-blue); color: #fff; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 500; white-space: nowrap;">
+        Zur Verfahrensdokumentation →
+      </a>
+    </div>
+
+    <div class="footer">
+      <p>Vorstands-App – Helmstedter Tennis-Verein e.V. · Stand: Juni 2026 · Bei Fragen wende dich an den App-Administrator.</p>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Aktiven Navigationseintrag beim Scrollen hervorheben
+  const sections = document.querySelectorAll('section[id]')
+  const navLinks = document.querySelectorAll('nav a[href^="#"]')
+
+  function setActive() {
+    let current = ''
+    sections.forEach(s => {
+      const top = s.getBoundingClientRect().top
+      if (top <= 80) current = s.id
+    })
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current)
+    })
+  }
+
+  window.addEventListener('scroll', setActive, { passive: true })
+  setActive()
+</script>
+</body>
+</html>
