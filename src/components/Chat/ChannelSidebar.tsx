@@ -310,7 +310,7 @@ export default function ChannelSidebar({
                         <div className="relative">
                           <button
                             onClick={e => { e.stopPropagation(); setOpenMenuId(prev => prev === ch.id ? null : ch.id) }}
-                            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-0.5 text-slate-400 hover:text-white rounded transition-opacity"
+                            className="opacity-100 p-0.5 text-slate-400 hover:text-white rounded transition-opacity"
                           >
                             <MoreHorizontal size={14} />
                           </button>
