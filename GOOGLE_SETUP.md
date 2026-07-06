@@ -35,9 +35,10 @@ Falls noch kein HTV-Projekt vorhanden: **„Projekt erstellen"** → Name z.B. `
 2. Oben: **„+ Anmeldedaten erstellen"** → **„OAuth-Client-ID"**
 3. Anwendungstyp: **Webanwendung**
 4. Name: `HTV Vorstands-App`
-5. **Autorisierte JavaScript-Ursprünge** → URL der App eintragen:
-   - Für lokale Entwicklung: `http://localhost:5173`
-   - Nach Deployment: z.B. `https://htv-vorstands-app.web.app`
+5. **Autorisierte JavaScript-Ursprünge** → alle drei URLs eintragen:
+   - `http://localhost:5173` (lokale Entwicklung)
+   - `https://htv-vorstands-app.web.app` (Firebase Hosting – Haupt-URL)
+   - `https://htv-vorstands-app.firebaseapp.com` (Firebase Hosting – alternative URL)
 6. Klick auf **Erstellen**
 7. Die angezeigte **Client-ID** kopieren (endet auf `.apps.googleusercontent.com`)
 
@@ -62,6 +63,23 @@ VITE_GOOGLE_CLIENT_ID=DEINE_CLIENT_ID.apps.googleusercontent.com
 - Nach dem Einloggen (mit `vorstand.htv@gmail.com`) werden die Google-Kalender-Termine **grün** angezeigt
 - App-Termine können mit dem **Upload-Symbol** (↑) in den Google Kalender exportiert werden
 - Der Sync läuft immer für ±1 Monat um den aktuellen Monat
+
+## Fehler „origin_mismatch" beheben
+
+Wenn der Fehler **„Zugriff blockiert: Autorisierungsfehler – Fehler 400: origin_mismatch"** erscheint:
+
+1. → https://console.cloud.google.com/ öffnen
+2. **„APIs und Dienste"** → **„Anmeldedaten"**
+3. Den vorhandenen OAuth-Client **„HTV Vorstands-App"** anklicken (Stift-Symbol)
+4. Unter **„Autorisierte JavaScript-Ursprünge"** prüfen, ob folgende URLs eingetragen sind:
+   - `https://htv-vorstands-app.web.app`
+   - `https://htv-vorstands-app.firebaseapp.com`
+5. Falls nicht: **„URI hinzufügen"** → URLs eintragen → **Speichern**
+6. ⚠️ Google braucht bis zu 5 Minuten, bis die Änderung wirksam wird
+
+> Die aktuelle Client-ID lautet: `466135932782-2fl4v22938ogmqij2t56n3c61e89b5co.apps.googleusercontent.com`
+
+---
 
 ## Hinweise
 

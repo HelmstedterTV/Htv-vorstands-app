@@ -83,10 +83,19 @@ export default function SitzungPage() {
     }
   }
 
+  function sortiereTagesordnung(to: Tagesordnungspunkt[]): Tagesordnungspunkt[] {
+    return [...to].sort((a, b) => {
+      const na = parseFloat(String(a.nr)) || 0
+      const nb = parseFloat(String(b.nr)) || 0
+      return na - nb
+    })
+  }
+
   async function saveTagesordnung(sitzungId: string, to: Tagesordnungspunkt[]) {
     setSaving(true)
+    const sorted = sortiereTagesordnung(to)
     try {
-      await updateDoc(doc(db, 'sitzungen', sitzungId), { tagesordnung: to })
+      await updateDoc(doc(db, 'sitzungen', sitzungId), { tagesordnung: sorted })
       setEditingTO(null)
     } finally {
       setSaving(false)
@@ -115,9 +124,48 @@ export default function SitzungPage() {
   }
 
   return (
-    <div className="h-full flex overflow-hidden">
-      {/* ── Linke Sidebar: Jahres- und Sitzungsliste ── */}
-      <aside className="w-48 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden">
+
+      {/* ── Mobile Sitzungsauswahl (nur auf kleinen Bildschirmen) ── */}
+      <div className="md:hidden flex-shrink-0 bg-white border-b border-slate-200 px-3 py-2 flex items-center gap-2">
+        <label className="text-xs text-slate-500 flex-shrink-0">Sitzung:</label>
+        <select
+          value={selectedId ?? ''}
+          onChange={e => {
+            const id = e.target.value
+            setSelectedId(id)
+            const s = sitzungen.find(x => x.id === id)
+            if (s) setSelectedJahr(s.jahr)
+          }}
+          className="flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 bg-white"
+        >
+          {sitzungen.length === 0 && <option value="">Keine Sitzungen</option>}
+          {[...new Set(sitzungen.map(s => s.jahr))].sort((a, b) => b - a).map(j => (
+            <optgroup key={j} label={String(j)}>
+              {sitzungen.filter(s => s.jahr === j).map(s => (
+                <option key={s.id} value={s.id}>
+                  {format(parseISO(s.datum), 'dd.MM.yyyy', { locale: de })}
+                  {s.status === 'abgeschlossen' ? ' (Archiv)' : ''}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+        {!isGast && (
+          <button
+            onClick={() => setShowNewForm(true)}
+            className="flex-shrink-0 flex items-center gap-1 px-2 py-1.5 rounded-lg text-white text-xs font-medium"
+            style={{ backgroundColor: 'var(--htv-blue)' }}
+          >
+            <Plus size={13} />
+            Neu
+          </button>
+        )}
+      </div>
+
+      <div className="flex-1 flex overflow-hidden">
+      {/* ── Linke Sidebar: Jahres- und Sitzungsliste (nur Desktop) ── */}
+      <aside className="hidden md:flex w-48 flex-shrink-0 bg-white border-r border-slate-200 flex-col">
         {/* Jahresauswahl */}
         <div className="px-3 pt-4 pb-2 border-b border-slate-100">
           <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
@@ -410,7 +458,7 @@ export default function SitzungPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {selected.tagesordnung.map((tp, i) => (
+                          {sortiereTagesordnung(selected.tagesordnung).map((tp, i) => (
                             <tr
                               key={tp.id}
                               className={
@@ -459,6 +507,7 @@ export default function SitzungPage() {
             </div>
           )
         )}
+      </div>
       </div>
     </div>
   )

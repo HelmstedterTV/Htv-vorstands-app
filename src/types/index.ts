@@ -1,5 +1,10 @@
 export type UserRole = 'vorstand' | 'admin' | 'gast'
 
+export interface DirectConversation {
+  convId: string          // [uid1, uid2].sort().join('_')
+  participants: string[]  // [uid1, uid2]
+}
+
 export interface AppUser {
   uid: string
   email: string
@@ -7,6 +12,10 @@ export interface AppUser {
   role: UserRole
   avatarUrl?: string
   createdAt: Date
+  lastSeen?: Date
+  invitedAt?: Date
+  hasLoggedIn?: boolean
+  emailNotifications?: boolean  // opt-in E-Mail-Benachrichtigung bei neuen Nachrichten
 }
 
 export type ChannelType = 'vorstand' | 'vorstand_gaeste' | 'projekt'
@@ -28,10 +37,17 @@ export interface Message {
   authorId: string
   authorName: string
   createdAt: Date
+  editedAt?: Date
   fileUrl?: string
   fileName?: string
   fileType?: string
   reactions?: Record<string, string[]> // emoji -> Array von UIDs
+  // Abstimmung
+  type?: 'message' | 'poll'
+  pollQuestion?: string
+  pollOptions?: string[]           // z.B. ['Ja', 'Nein', 'Enthaltung']
+  pollVotes?: Record<string, string[]> // optionIndex -> Array von UIDs
+  pollAnonymous?: boolean          // true = nur Gesamtzahl sichtbar, kein Wer
 }
 
 export type TodoPriority = 'hoch' | 'mittel' | 'niedrig'

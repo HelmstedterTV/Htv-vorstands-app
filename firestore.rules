@@ -28,18 +28,39 @@ service cloud.firestore {
 
     // Channels
     match /channels/{channelId} {
+      // Projekt-Channels nur für eingetragene Mitglieder sichtbar,
+      // Vorstand/Vorstand&Gäste-Channels wie bisher für Vorstand bzw. alle (inkl. Gäste)
       allow read: if isSignedIn() &&
-        (isVorstand() || resource.data.type == 'vorstand_gaeste');
+        (
+          resource.data.type == 'vorstand_gaeste' ||
+          (resource.data.type != 'projekt' && isVorstand()) ||
+          (resource.data.type == 'projekt' && request.auth.uid in resource.data.members)
+        );
       allow create, update, delete: if isVorstand();
 
-      // Nachrichten – Vorstand + Gäste dürfen schreiben
+      // Nachrichten – Vorstand + Gäste dürfen schreiben, Projekt-Channels nur Mitglieder
       match /messages/{msgId} {
         allow read: if isSignedIn() &&
-          (isVorstand() || get(/databases/$(database)/documents/channels/$(channelId)).data.type == 'vorstand_gaeste');
-        allow create: if isSignedIn(); // Vorstand und Gäste dürfen schreiben
-        // Reaktionen hinzufügen/entfernen – nur das 'reactions'-Feld darf geändert werden
-        allow update: if isSignedIn() &&
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions']);
+          (
+            get(/databases/$(database)/documents/channels/$(channelId)).data.type == 'vorstand_gaeste' ||
+            (get(/databases/$(database)/documents/channels/$(channelId)).data.type != 'projekt' && isVorstand()) ||
+            (get(/databases/$(database)/documents/channels/$(channelId)).data.type == 'projekt' &&
+             request.auth.uid in get(/databases/$(database)/documents/channels/$(channelId)).data.members)
+          );
+        allow create: if isSignedIn() &&
+          (
+            get(/databases/$(database)/documents/channels/$(channelId)).data.type == 'vorstand_gaeste' ||
+            (get(/databases/$(database)/documents/channels/$(channelId)).data.type != 'projekt' && isVorstand()) ||
+            (get(/databases/$(database)/documents/channels/$(channelId)).data.type == 'projekt' &&
+             request.auth.uid in get(/databases/$(database)/documents/channels/$(channelId)).data.members)
+          );
+        // Reaktionen + Abstimmungen – alle eingeloggten Nutzer dürfen diese Felder ändern
+        // Eigene Nachricht bearbeiten – nur 'text' und 'editedAt' dürfen geändert werden
+        allow update: if isSignedIn() && (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions', 'pollVotes']) ||
+          (request.auth.uid == resource.data.authorId &&
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'editedAt']))
+        );
         allow delete: if isAdmin();
       }
     }
@@ -61,6 +82,34 @@ service cloud.firestore {
     match /sitzungen/{sitzungId} {
       allow read: if isVorstand();
       allow create, update, delete: if isVorstand();
+    }
+
+    // Direktnachrichten – nur die beiden Teilnehmer dürfen lesen/schreiben
+    match /directMessages/{convId} {
+      allow read: if isSignedIn() &&
+        request.auth.uid in resource.data.participants;
+      allow create: if isSignedIn() &&
+        request.auth.uid in request.resource.data.participants;
+      allow update: if isSignedIn() &&
+        request.auth.uid in resource.data.participants;
+
+      match /messages/{msgId} {
+        allow read: if isSignedIn() &&
+          request.auth.uid in get(/databases/$(database)/documents/directMessages/$(convId)).data.participants;
+        allow create: if isSignedIn() &&
+          request.auth.uid in get(/databases/$(database)/documents/directMessages/$(convId)).data.participants;
+        allow update: if isSignedIn() &&
+          request.auth.uid in get(/databases/$(database)/documents/directMessages/$(convId)).data.participants && (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions', 'pollVotes']) ||
+          (request.auth.uid == resource.data.authorId &&
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'editedAt']))
+        );
+      }
+    }
+
+    // Lesestand pro Nutzer (für Ungelesen-Badge)
+    match /userActivity/{uid} {
+      allow read, write: if request.auth.uid == uid;
     }
   }
 }

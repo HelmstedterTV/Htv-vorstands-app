@@ -19,6 +19,34 @@ import { useAuth } from '../context/AuthContext'
 import type { AppUser, UserRole } from '../types'
 import { Trash2, Shield, User, UserPlus, X, Mail, RefreshCw, Lock } from 'lucide-react'
 
+// Firestore gibt Timestamps zurück, keine JS-Dates → toDate() nötig
+function toDate(val: unknown): Date | undefined {
+  if (!val) return undefined
+  if (val instanceof Date) return val
+  if (typeof val === 'object' && val !== null && 'toDate' in val)
+    return (val as { toDate: () => Date }).toDate()
+  return new Date(val as string)
+}
+
+function formatLastSeen(lastSeen: unknown): string {
+  const d = toDate(lastSeen)
+  if (!d) return ''
+  const diff = Date.now() - d.getTime()
+  const min = Math.floor(diff / 60000)
+  if (min < 5) return 'gerade online'
+  if (min < 60) return `vor ${min} Min.`
+  const h = Math.floor(min / 60)
+  if (h < 24) return `vor ${h} Std.`
+  const days = Math.floor(h / 24)
+  return `vor ${days} Tag${days > 1 ? 'en' : ''}`
+}
+
+function isOnline(lastSeen: unknown): boolean {
+  const d = toDate(lastSeen)
+  if (!d) return false
+  return Date.now() - d.getTime() < 5 * 60 * 1000
+}
+
 // Firebase-Config der Vertrags-App (separates Projekt)
 const VERTRAEGE_CONFIG = {
   apiKey: "AIzaSyCBo69NFyloUpl3-1c5MdykBLfUF9BT8ho",
@@ -101,6 +129,8 @@ export default function AdminPage() {
         email: inviteEmail.trim().toLowerCase(),
         role: inviteRole,
         createdAt: serverTimestamp(),
+        invitedAt: serverTimestamp(),
+        hasLoggedIn: false,
       })
 
       // Passwort-Reset-Mail senden → Nutzer setzt sein eigenes Passwort
@@ -160,17 +190,6 @@ export default function AdminPage() {
     await deleteDoc(doc(db, 'users', uid))
   }
 
-  if (!isAdmin) {
-    return (
-      <div className="flex h-full items-center justify-center text-slate-400">
-        <div className="text-center">
-          <Shield size={40} className="mx-auto mb-3 opacity-30" />
-          <p className="text-sm">Kein Zugriff</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto px-4 py-6">
@@ -178,18 +197,25 @@ export default function AdminPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-semibold text-slate-800">Mitglieder</h1>
-          <button
-            onClick={() => { setShowInvite(v => !v); setInviteSuccess(''); setInviteError('') }}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-white text-sm font-medium"
-            style={{ backgroundColor: 'var(--htv-blue)' }}
-          >
-            {showInvite ? <X size={16} /> : <UserPlus size={16} />}
-            {showInvite ? 'Abbrechen' : 'Mitglied einladen'}
-          </button>
+          {isAdmin ? (
+            <button
+              onClick={() => { setShowInvite(v => !v); setInviteSuccess(''); setInviteError('') }}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-white text-sm font-medium"
+              style={{ backgroundColor: 'var(--htv-blue)' }}
+            >
+              {showInvite ? <X size={16} /> : <UserPlus size={16} />}
+              {showInvite ? 'Abbrechen' : 'Mitglied einladen'}
+            </button>
+          ) : (
+            <span className="flex items-center gap-1.5 text-xs text-slate-400">
+              <Shield size={13} />
+              Nur Ansicht
+            </span>
+          )}
         </div>
 
         {/* Einlade-Formular */}
-        {showInvite && (
+        {isAdmin && showInvite && (
           <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-5 space-y-4">
             <h2 className="font-medium text-slate-800">Neues Mitglied einladen</h2>
             <p className="text-xs text-slate-500">
@@ -261,7 +287,9 @@ export default function AdminPage() {
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
             <span className="text-xs text-slate-500">
-              Rollen ändern: Dropdown rechts neben dem Nutzer. Admin-Rechte können nur Admins vergeben.
+              {isAdmin
+                ? 'Rollen ändern: Dropdown rechts neben dem Nutzer. Admin-Rechte können nur Admins vergeben.'
+                : 'Übersicht aller Mitglieder. Nur Admins können Rollen ändern oder Mitglieder verwalten.'}
             </span>
             <span className="text-xs text-slate-400 flex items-center gap-1">
               <User size={12} /> {users.length}
@@ -281,18 +309,37 @@ export default function AdminPage() {
                 i < users.length - 1 ? 'border-b border-slate-100' : ''
               }`}
             >
-              {/* Avatar */}
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0"
-                style={{ backgroundColor: 'var(--htv-blue)' }}
-              >
-                {user.displayName?.charAt(0).toUpperCase()}
+              {/* Avatar mit Online-Punkt */}
+              <div className="relative flex-shrink-0">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                  style={{ backgroundColor: 'var(--htv-blue)' }}
+                >
+                  {user.displayName?.charAt(0).toUpperCase()}
+                </div>
+                <span
+                  className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                    isOnline(user.lastSeen) ? 'bg-green-400' : 'bg-slate-300'
+                  }`}
+                />
               </div>
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-slate-800 truncate">{user.displayName}</div>
-                <div className="text-xs text-slate-400 truncate">{user.email}</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-medium text-slate-800 truncate">{user.displayName}</span>
+                  {!user.hasLoggedIn && user.uid !== userProfile?.uid && (
+                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600 font-medium flex-shrink-0">
+                      Noch nicht eingeloggt
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-slate-400 truncate">
+                  {user.email}
+                  {user.lastSeen && (
+                    <span className="ml-2 text-slate-300">· {formatLastSeen(user.lastSeen)}</span>
+                  )}
+                </div>
               </div>
 
               {/* Rolle Badge */}
@@ -300,8 +347,8 @@ export default function AdminPage() {
                 {roleLabels[user.role]}
               </span>
 
-              {/* Rolle ändern */}
-              {user.uid !== userProfile?.uid && (
+              {/* Rolle ändern – nur Admin */}
+              {isAdmin && user.uid !== userProfile?.uid && (
                 <select
                   value={user.role}
                   onChange={e => changeRole(user.uid, e.target.value as UserRole)}
@@ -316,8 +363,8 @@ export default function AdminPage() {
                 <span className="text-xs text-slate-300 flex-shrink-0">Du</span>
               )}
 
-              {/* Einladung erneut senden + Entfernen */}
-              {user.uid !== userProfile?.uid && (
+              {/* Einladung erneut senden + Entfernen – nur Admin */}
+              {isAdmin && user.uid !== userProfile?.uid && (
                 <>
                   <button
                     onClick={() => resendInvite(user.uid, user.email)}
@@ -340,7 +387,8 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Vertragsmanagement-Zugang */}
+        {/* Vertragsmanagement-Zugang – nur Admin */}
+        {isAdmin && (
         <div className="bg-white rounded-2xl border border-slate-200 p-5 mt-5">
           <div className="flex items-center gap-2 mb-3">
             <Lock size={16} className="text-slate-500" />
@@ -373,6 +421,7 @@ export default function AdminPage() {
             </p>
           )}
         </div>
+        )}
 
       </div>
     </div>

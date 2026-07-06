@@ -16,10 +16,17 @@ import {
   HardDrive,
   ClipboardList,
   BookOpen,
+  Mail,
+  HelpCircle,
+  Trophy,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useUnreadTotal } from '../../context/UnreadContext'
+
+// Versionsstand der App – manuell hochzählen, damit alle sehen, ob sie den aktuellen Stand nutzen
+const APP_VERSION = '1.1'
+const APP_VERSION_DATE = '05.07.2026'
 
 const navItems = [
   { to: '/chat', label: 'Chat', icon: MessageSquare },
@@ -27,15 +34,18 @@ const navItems = [
   { to: '/sitzungen', label: 'Sitzungen', icon: ClipboardList },
   { to: '/protokolle', label: 'Protokolle', icon: BookOpen },
   { to: '/kalender', label: 'Kalender', icon: Calendar },
-  { to: '/admin', label: 'Mitglieder', icon: Users, adminOnly: true },
+  { to: '/admin', label: 'Mitglieder', icon: Users },
 ]
 
 const externalApps = [
   { label: 'HTV Homepage', url: 'https://www.helmstedtertv.de', icon: Globe },
+  { label: 'HTV eBuSy', url: 'https://helmstedtertv.ebusy.de', icon: Trophy },
+  { label: 'Google Mail', url: 'https://mail.google.com', icon: Mail },
   { label: 'Google Drive', url: 'https://drive.google.com', icon: HardDrive },
   { label: 'Schl\u00fcsselliste', url: 'https://helmstedtertv.github.io/schlusselapp/', icon: Key },
   { label: 'Anlagen', url: 'https://helmstedtertv.github.io/htv-anlagen/', icon: Building2 },
   { label: 'Vertr\u00e4ge', url: 'https://helmstedtertv.github.io/htv-vertraege/', icon: FileText },
+  { label: 'Hilfe', url: `${import.meta.env.BASE_URL}hilfe.html`, icon: HelpCircle },
 ]
 
 export default function AppShell() {
@@ -48,8 +58,7 @@ export default function AppShell() {
     navigate('/login')
   }
 
-  const isAdmin = userProfile?.role === 'admin'
-  const { totalUnread } = useUnreadTotal()
+  const { totalUnread, markAllAsRead } = useUnreadTotal()
 
   const sidebar = (
     <div className="flex flex-col h-full" style={{ backgroundColor: 'var(--htv-blue)' }}>
@@ -66,6 +75,7 @@ export default function AppShell() {
           <div>
             <div className="text-white font-semibold text-sm leading-tight">Vorstands-App</div>
             <div className="text-white/50 text-xs">HTV Helmstedt</div>
+            <div className="text-white/30 text-[10px] mt-0.5">Version {APP_VERSION} · Stand {APP_VERSION_DATE}</div>
           </div>
         </div>
       </div>
@@ -73,7 +83,6 @@ export default function AppShell() {
       {/* Navigation */}
       <nav className="flex-1 px-2 py-4 space-y-0.5">
         {navItems
-          .filter(item => !item.adminOnly || isAdmin)
           .map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
@@ -136,6 +145,16 @@ export default function AppShell() {
             <div className="text-white/50 text-xs truncate">{userProfile?.email}</div>
           </div>
         </NavLink>
+        {totalUnread > 0 && (
+          <button
+            onClick={markAllAsRead}
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-white/70 hover:bg-white/10 hover:text-white text-sm transition-colors mb-1"
+            title="Alle Nachrichten als gelesen markieren"
+          >
+            <MessageSquare size={18} />
+            Alle gelesen ✓
+          </button>
+        )}
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-white/70 hover:bg-white/10 hover:text-white text-sm transition-colors"
@@ -177,7 +196,10 @@ export default function AppShell() {
           <div className="w-7 h-7 rounded bg-white flex items-center justify-center overflow-hidden">
             <img src={`${import.meta.env.BASE_URL}Logo2025klein.jpeg`} alt="HTV" className="w-6 h-6 object-contain" />
           </div>
-          <span className="text-white font-semibold text-sm">Vorstands-App</span>
+          <div className="min-w-0">
+            <span className="text-white font-semibold text-sm">Vorstands-App</span>
+            <span className="block text-white/40 text-[10px] leading-tight">v{APP_VERSION} · {APP_VERSION_DATE}</span>
+          </div>
         </header>
 
         {/* Page Content */}
@@ -188,7 +210,6 @@ export default function AppShell() {
         {/* Mobile Bottom Navigation */}
         <nav className="md:hidden flex border-t border-slate-200 bg-white">
           {navItems
-            .filter(item => !item.adminOnly || isAdmin)
             .map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}

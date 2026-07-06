@@ -178,16 +178,19 @@ export default function KalenderPage() {
           title: title.trim(),
           start,
           end,
-          location: location.trim() || undefined,
-          description: description.trim() || undefined,
+          location: location.trim() || null,
+          description: description.trim() || null,
           reminderMinutes: parseInt(reminderMin),
-          recurrence: recFreq !== 'none' ? recurrence : undefined,
+          recurrence: recFreq !== 'none' ? recurrence : null,
         }
         await updateDoc(doc(db, 'events', baseId), updateData)
         // Google sync: Termin auch in Google aktualisieren
         if (isConnected && editingEvent.googleEventId) {
           await updateGoogleEvent(editingEvent.googleEventId, {
             ...editingEvent, ...updateData, start, end,
+            location: updateData.location ?? undefined,
+            description: updateData.description ?? undefined,
+            recurrence: updateData.recurrence ?? undefined,
           })
         }
       } else {
@@ -196,8 +199,8 @@ export default function KalenderPage() {
           title: title.trim(),
           start,
           end,
-          location: location.trim() || undefined,
-          description: description.trim() || undefined,
+          location: location.trim() || null,
+          description: description.trim() || null,
           reminderMinutes: parseInt(reminderMin),
           recurrence: recFreq !== 'none' ? recurrence : null,
           createdBy: currentUser.uid,

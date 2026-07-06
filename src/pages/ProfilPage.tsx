@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   updatePassword,
   updateEmail,
@@ -8,7 +8,9 @@ import {
 import { doc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { useAuth } from '../context/AuthContext'
-import { User, Mail, Lock, CheckCircle2 } from 'lucide-react'
+import { User, Mail, Lock, CheckCircle2, Bell } from 'lucide-react'
+import { requestNotificationPermission, notificationsGranted } from '../utils/notifications'
+import { subscribeToPush, pushSupported, listenForegroundMessages } from '../utils/webPush'
 
 export default function ProfilPage() {
   const { currentUser, userProfile } = useAuth()
@@ -24,6 +26,38 @@ export default function ProfilPage() {
   const [emailSuccess, setEmailSuccess] = useState(false)
   const [emailError, setEmailError] = useState('')
   const [emailSaving, setEmailSaving] = useState(false)
+
+  // Push-Benachrichtigungen
+  const [pushGranted, setPushGranted] = useState(notificationsGranted)
+  const [notifSaving, setNotifSaving] = useState(false)
+  const [notifDenied, setNotifDenied] = useState(
+    'Notification' in window && Notification.permission === 'denied'
+  )
+
+  // Vordergrund-Nachrichten anzeigen, solange die App offen ist
+  useEffect(() => {
+    if (pushGranted) void listenForegroundMessages()
+  }, [pushGranted])
+
+  async function togglePushNotifications() {
+    if (pushGranted) return   // können nicht per JS widerrufen werden – nur im Browser
+    setNotifSaving(true)
+    try {
+      const granted = await requestNotificationPermission()
+      setPushGranted(granted)
+      if (!granted) {
+        setNotifDenied(true)
+        return
+      }
+      // FCM-Token holen und beim Cloudflare-Worker registrieren
+      if (pushSupported() && currentUser) {
+        await subscribeToPush(currentUser.uid)
+        await listenForegroundMessages()
+      }
+    } finally {
+      setNotifSaving(false)
+    }
+  }
 
   // Passwort
   const [currentPassword, setCurrentPassword] = useState('')
@@ -189,6 +223,42 @@ export default function ProfilPage() {
               {emailSaving ? 'Wird gespeichert…' : 'E-Mail ändern'}
             </button>
           </div>
+        </div>
+
+        {/* Push-Benachrichtigungen */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <div className="flex items-center gap-2 mb-1">
+            <Bell size={16} className="text-slate-400" />
+            <h2 className="font-medium text-slate-800">Benachrichtigungen</h2>
+          </div>
+          <p className="text-xs text-slate-400 mb-4">
+            Erhalte eine Benachrichtigung wenn jemand eine neue Nachricht schreibt, während du in einem anderen Tab bist.
+          </p>
+          {notifDenied ? (
+            <p className="text-xs text-amber-600 bg-amber-50 rounded-xl px-3 py-2">
+              Benachrichtigungen wurden im Browser blockiert. Bitte in den Browser-Einstellungen erlauben und die Seite neu laden.
+            </p>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-slate-700 font-medium">
+                {pushGranted ? (
+                  <span className="flex items-center gap-1.5 text-green-700">
+                    <CheckCircle2 size={14} /> Benachrichtigungen aktiviert
+                  </span>
+                ) : 'Benachrichtigungen aktivieren'}
+              </div>
+              {!pushGranted && (
+                <button
+                  onClick={togglePushNotifications}
+                  disabled={notifSaving}
+                  className="px-4 py-2 rounded-lg text-white text-sm font-medium disabled:opacity-40"
+                  style={{ backgroundColor: 'var(--htv-blue)' }}
+                >
+                  {notifSaving ? 'Bitte warten…' : 'Erlauben'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Passwort ändern */}

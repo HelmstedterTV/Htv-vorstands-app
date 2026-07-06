@@ -92,6 +92,13 @@ export function useUnread(channelIds: string[]): UnreadState {
     }
   }, [counts])
 
+  // Badge löschen wenn kein Nutzer eingeloggt
+  useEffect(() => {
+    if (!currentUser && 'clearAppBadge' in navigator) {
+      (navigator as Navigator & { clearAppBadge: () => void }).clearAppBadge?.()
+    }
+  }, [currentUser])
+
   const markAsRead = useCallback(async (channelId: string) => {
     if (!currentUser) return
     const now = new Date()
