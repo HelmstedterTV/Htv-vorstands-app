@@ -10,7 +10,7 @@ import { db } from '../firebase/config'
 import { useAuth } from '../context/AuthContext'
 import { User, Mail, Lock, CheckCircle2, Bell } from 'lucide-react'
 import { requestNotificationPermission, notificationsGranted } from '../utils/notifications'
-import { subscribeToPush, pushSupported, listenForegroundMessages } from '../utils/webPush'
+import { subscribeToPush, pushSupported, listenForegroundMessages, pushDiagnostics, getLastPushError } from '../utils/webPush'
 
 export default function ProfilPage() {
   const { currentUser, userProfile } = useAuth()
@@ -56,10 +56,14 @@ export default function ProfilPage() {
       }
       if (pushSupported() && currentUser) {
         const ok = await subscribeToPush(currentUser.uid)
-        setPushInfo(ok ? 'Gerät für Benachrichtigungen angemeldet.' : 'Anmeldung fehlgeschlagen.')
+        setPushInfo(
+          ok
+            ? 'Gerät für Benachrichtigungen angemeldet.'
+            : 'Fehler: ' + (getLastPushError() || 'unbekannt') + ' — ' + pushDiagnostics()
+        )
         await listenForegroundMessages()
       } else {
-        setPushInfo('Push wird hier nicht unterstützt (auf iPhone/iPad: App über „Zum Home-Bildschirm" öffnen).')
+        setPushInfo('Push hier nicht möglich — ' + pushDiagnostics())
       }
     } finally {
       setNotifSaving(false)

@@ -29,6 +29,30 @@ export function pushSupported(): boolean {
 }
 
 /**
+ * Klartext-Diagnose für die Profil-Seite: zeigt direkt auf dem Gerät, welche
+ * Voraussetzung fehlt. Ohne das ist auf iOS nicht erkennbar, warum die
+ * Anmeldung scheitert (dort gibt es keine Entwicklerkonsole).
+ */
+export function pushDiagnostics(): string {
+  const nav = navigator as Navigator & { maxTouchPoints: number }
+  const standalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+
+  return [
+    `ServiceWorker: ${'serviceWorker' in navigator ? 'ja' : 'NEIN'}`,
+    `PushManager: ${'PushManager' in window ? 'ja' : 'NEIN'}`,
+    `Notification: ${'Notification' in window ? 'ja' : 'NEIN'}`,
+    `Erlaubnis: ${typeof Notification !== 'undefined' ? Notification.permission : 'n/a'}`,
+    `Homebildschirm-App: ${standalone ? 'ja' : 'NEIN'}`,
+    `Apple-Weg: ${isApplePush() ? 'ja' : 'nein'}`,
+    `Touch: ${nav.maxTouchPoints}`,
+    `Worker-URL: ${WORKER_URL ? 'gesetzt' : 'FEHLT'}`,
+    `VAPID: ${VAPID_PUBLIC ? 'gesetzt' : 'FEHLT'}`,
+  ].join(' · ')
+}
+
+/**
  * iOS/iPadOS-Erkennung. iPadOS meldet sich oft als "MacIntel" – daher die
  * Touch-Heuristik. Auf iOS erreicht FCM den Push nicht zuverlässig; dort nutzen
  * wir direkten VAPID-Web-Push an den Apple-Endpunkt.
@@ -108,12 +132,26 @@ async function pingDiag(stage: string, uid = '?'): Promise<void> {
   } catch { /* egal */ }
 }
 
+/**
+ * Letzter Fehlergrund der Push-Anmeldung – wird auf der Profil-Seite angezeigt.
+ * Auf iOS gibt es keine Entwicklerkonsole; ohne das bleibt jeder Fehler unsichtbar.
+ */
+let lastPushError = ''
+export function getLastPushError(): string {
+  return lastPushError
+}
+
 export async function subscribeToPush(uid: string): Promise<boolean> {
-  if (!pushSupported() || !WORKER_URL) return false
+  lastPushError = ''
+  if (!pushSupported() || !WORKER_URL) {
+    lastPushError = 'Grundvoraussetzung fehlt'
+    return false
+  }
   await pingDiag('start', uid)
 
   try {
     const registration = await getRegistration()
+    if (!registration) lastPushError = 'keine Service-Worker-Registrierung'
     let token: string | null = null
 
     if (isApplePush()) {
@@ -131,7 +169,15 @@ export async function subscribeToPush(uid: string): Promise<boolean> {
       })
     }
 
-    if (!token) { await pingDiag('no-token', uid); return false }
+    if (!token) {
+      await pingDiag('no-token', uid)
+      if (!lastPushError) {
+        lastPushError = isApplePush()
+          ? (VAPID_PUBLIC ? 'Apple-Abo leer' : 'VAPID-Schlüssel fehlt im Build')
+          : 'FCM-Token leer'
+      }
+      return false
+    }
 
     const res = await fetch(`${WORKER_URL}/subscribe`, {
       method: 'POST',
@@ -140,8 +186,10 @@ export async function subscribeToPush(uid: string): Promise<boolean> {
     })
 
     await pingDiag('posted status=' + res.status, uid)
+    if (!res.ok) lastPushError = 'Worker antwortete mit Status ' + res.status
     return res.ok
   } catch (err) {
+    lastPushError = err instanceof Error ? err.name + ': ' + err.message : String(err)
     await pingDiag('error ' + (err instanceof Error ? err.name + ':' + err.message : String(err)), uid)
     console.warn('Push-Subscription fehlgeschlagen:', err)
     return false
