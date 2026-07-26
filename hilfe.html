@@ -391,6 +391,7 @@
       <li><a href="#kalender"><span class="icon">📅</span> Kalender</a></li>
       <li><a href="#sitzungen"><span class="icon">📋</span> Sitzungen</a></li>
       <li><a href="#protokolle"><span class="icon">📁</span> Protokolle</a></li>
+      <li><a href="#zaehler"><span class="icon">🔢</span> Zähler</a></li>
       <li><a href="#admin"><span class="icon">⚙️</span> Mitglieder</a></li>
       <li><a href="#profil"><span class="icon">🙍</span> Profil</a></li>
     </ul>
@@ -403,6 +404,7 @@
 
     <div class="section-label">Dokumentation</div>
     <ul>
+      <li><a href="#versionen"><span class="icon">🕒</span> Versionshistorie</a></li>
       <li><a href="./verfahrensdokumentation.html"><span class="icon">📂</span> Verfahrensdokumentation</a></li>
     </ul>
   </nav>
@@ -525,8 +527,22 @@
         <li>Mit <strong>Enter</strong> senden (oder auf den Senden-Button klicken).</li>
       </ol>
 
-      <h3>Dateien senden</h3>
-      <p>Über das Büroklammer-Symbol im Eingabefeld können Bilder und Dokumente angehängt werden. Die Dateien werden sicher in Firebase Storage gespeichert.</p>
+      <h3>Dokumente teilen</h3>
+      <p>Über das Link-Symbol links im Eingabefeld lässt sich ein Link aus Google Drive, Gmail oder Google Docs einfügen. Die Datei erscheint dann als anklickbare Kachel im Chat. Es wird bewusst nur der Link geteilt – die Datei selbst bleibt an ihrem Ort und wird nicht kopiert.</p>
+
+      <h3>Abstimmungen</h3>
+      <ol class="steps">
+        <li>Auf das Diagramm-Symbol im Eingabefeld tippen.</li>
+        <li>Frage und zwei bis vier Antwortmöglichkeiten eingeben.</li>
+        <li>Bei Bedarf <strong>Anonym</strong> ankreuzen – dann ist nur die Gesamtzahl sichtbar, nicht wer wie gestimmt hat.</li>
+        <li>Auf „Abstimmung starten" tippen.</li>
+      </ol>
+
+      <h3>Personen erwähnen</h3>
+      <p>Ein <strong>@</strong> gefolgt vom Namen öffnet eine Vorschlagsliste. Die erwähnte Person wird in der Nachricht hervorgehoben.</p>
+
+      <h3>Eigene Nachrichten löschen</h3>
+      <p>Eigene Nachrichten, geteilte Dokumente und Abstimmungen können über das Papierkorb-Symbol an der Nachricht wieder entfernt werden. Nach einer Rückfrage wird der Eintrag endgültig gelöscht. Administratoren können zusätzlich fremde Nachrichten löschen.</p>
 
       <h3>Reaktionen</h3>
       <p>Mit dem Emoji-Symbol neben einer Nachricht können Reaktionen hinzugefügt werden (ähnlich wie in Teams oder Slack).</p>
@@ -539,7 +555,11 @@
       </div>
 
       <h3>Ungelesene Nachrichten</h3>
-      <p>Channels mit neuen Nachrichten werden in der Navigation mit einem blauen Punkt markiert.</p>
+      <p>Channels und Direktnachrichten mit ungelesenen Beiträgen zeigen in der Liste eine rote Zahl. Beim Öffnen gilt der Channel als gelesen und die Zahl verschwindet. Die Gesamtzahl erscheint zusätzlich als Kennzeichen am App-Symbol auf dem Homebildschirm.</p>
+
+      <div class="box box-info">
+        <strong>Benachrichtigungen bei Projekt-Channels:</strong> Eine neue Nachricht in einem Projekt-Channel meldet die App nur noch den dort eingetragenen Teilnehmern. Wer nicht Mitglied des Projekts ist, wird nicht mehr benachrichtigt.
+      </div>
     </section>
 
     <!-- Aufgaben -->
@@ -683,10 +703,65 @@
       <p>Unter „Profil" können persönliche Einstellungen verwaltet werden:</p>
       <ul>
         <li><strong>Anzeigename</strong> ändern</li>
-        <li><strong>E-Mail-Benachrichtigungen</strong> aktivieren/deaktivieren (opt-in für neue Nachrichten)</li>
-        <li><strong>Passwort</strong> zurücksetzen</li>
+        <li><strong>E-Mail-Adresse</strong> ändern (Bestätigung mit dem aktuellen Passwort)</li>
+        <li><strong>Benachrichtigungen</strong> erlauben und das Gerät anmelden</li>
+        <li><strong>Passwort</strong> ändern</li>
         <li><strong>Abmelden</strong></li>
       </ul>
+
+      <h3>Benachrichtigungen einrichten</h3>
+      <ol class="steps">
+        <li>Auf „Erlauben" tippen und die Rückfrage des Geräts bestätigen.</li>
+        <li>Danach erscheint „Benachrichtigungen aktiviert".</li>
+      </ol>
+      <p>Jedes Gerät muss einzeln angemeldet werden – Handy, Tablet und Rechner also jeweils separat.</p>
+
+      <h3>Gerät neu anmelden</h3>
+      <p>Bleiben auf einem Gerät Benachrichtigungen aus, hilft der Knopf <strong>„Gerät neu anmelden"</strong>. Er meldet das Gerät erneut an, ohne dass etwas neu installiert werden muss. Unterhalb erscheint eine kurze Rückmeldung, ob es geklappt hat.</p>
+
+      <div class="box box-tip">
+        <strong>iPhone und iPad:</strong> Benachrichtigungen funktionieren dort nur, wenn die App über „Teilen → Zum Home-Bildschirm" installiert und von diesem Symbol aus geöffnet wird. In einem normalen Safari-Tab sind sie technisch nicht möglich.
+      </div>
+    </section>
+
+    <!-- Zähler -->
+    <section id="zaehler">
+      <h2>🔢 Zählerstände erfassen</h2>
+      <p>Über <strong>Tools → Erfassung Zähler</strong> werden die Verbräuche der Anlage erfasst und ausgewertet – getrennt nach <strong>Gas</strong>, <strong>Strom</strong> und <strong>Wasser</strong>.</p>
+
+      <h3>Ablesung eintragen</h3>
+      <ol class="steps">
+        <li>Sparte auswählen (Gas, Strom oder Wasser).</li>
+        <li>Den betreffenden Zähler wählen.</li>
+        <li>Ablesedatum und Zählerstand eintragen, bei Bedarf eine Notiz ergänzen.</li>
+        <li>Speichern – die Ablesung wird mit Name und Zeitpunkt festgehalten.</li>
+      </ol>
+
+      <h3>Arten von Zählern</h3>
+      <ul>
+        <li><strong>Abrechnungszähler</strong> – Grundlage der Versorgerrechnung, erzeugt die Kosten.</li>
+        <li><strong>Unterzähler</strong> – sitzt hinter einem Abrechnungszähler und dient der Aufteilung, wird also abgezogen (z. B. Gaststätte, Halle).</li>
+        <li><strong>Statistikzähler</strong> – eigener Vertrag Dritter, etwa des Pächters; dient nur der Information.</li>
+      </ul>
+
+      <h3>Herkunft eines Standes</h3>
+      <p>Jeder Eintrag ist gekennzeichnet, woher er stammt:</p>
+      <ul>
+        <li><strong>Eigene Ablesung</strong> – vor Ort abgelesen.</li>
+        <li><strong>Laut Rechnung</strong> – vom Versorger bestätigter Stand.</li>
+        <li><strong>Geschätzt</strong> – vom Versorger hochgerechnet. Solche Werte werden angezeigt, fließen aber nicht in die Verbrauchsberechnung ein.</li>
+      </ul>
+
+      <h3>Auswertungen</h3>
+      <ul>
+        <li><strong>Übersicht</strong> – aktueller Stand aller Sparten auf einen Blick.</li>
+        <li><strong>Sparten-Ansicht</strong> – Verlauf und Verbrauch der einzelnen Zähler.</li>
+        <li><strong>Jahresvergleich</strong> – Gegenüberstellung mit dem Vorjahr, als Grundlage für Abschlagszahlungen und die Nebenkostenumlage.</li>
+      </ul>
+
+      <div class="box box-tip">
+        <strong>Hinweis:</strong> Stände, die aus einer Rechnung stammen, lassen sich nachträglich nicht ändern oder löschen. So bleibt nachvollziehbar, welche Werte der Abrechnung zugrunde lagen. Eigene Ablesungen können dagegen korrigiert werden.
+      </div>
     </section>
 
     <!-- Datenschutz -->
@@ -808,6 +883,38 @@
       </div>
     </section>
 
+    <!-- Versionshistorie -->
+    <section id="versionen">
+      <h2>🕒 Versionshistorie</h2>
+      <p>Die aktuell genutzte Version steht im Kopf der App (z. B. „v1.3 · 26.07.2026"). Stimmt sie nicht mit der neuesten Version überein, hilft es, die App einmal vollständig zu schließen und neu zu öffnen.</p>
+
+      <h3>Version 1.3 – 26. Juli 2026</h3>
+      <ul>
+        <li><strong>Zählerstände erfassen</strong> – neuer Bereich unter Tools für Gas, Strom und Wasser mit Übersicht, Sparten-Ansicht und Jahresvergleich.</li>
+        <li><strong>Eigene Beiträge löschen</strong> – Nachrichten, geteilte Dokumente und Abstimmungen können selbst entfernt werden; bisher war das der Administration vorbehalten.</li>
+        <li><strong>Benachrichtigungen nur für Beteiligte</strong> – bei Projekt-Channels werden nur noch die eingetragenen Teilnehmer benachrichtigt. Zuvor erhielten alle Mitglieder einen Hinweis, auch wenn sie dem Projekt nicht angehörten.</li>
+        <li><strong>Klarere Benachrichtigungen</strong> – es wird der Channel-Name angezeigt statt einer internen Kennung.</li>
+        <li><strong>Gerät neu anmelden</strong> – neuer Knopf im Profil, falls Benachrichtigungen auf einem Gerät ausbleiben.</li>
+        <li><strong>Bedienung auf Handy und Tablet</strong> – das Menü lässt sich wieder vollständig scrollen (der Punkt „Abmelden" war zeitweise nicht erreichbar), und „Teilnehmer bearbeiten" ist auf Touch-Geräten sichtbar.</li>
+        <li><strong>Zuverlässigere Benachrichtigungen</strong> – mehrere Fehler behoben, durch die Hinweise auf dem Homebildschirm ausbleiben konnten.</li>
+      </ul>
+
+      <h3>Version 1.2 – 26. Juli 2026</h3>
+      <p>Zwischenstand desselben Tages; die Änderungen sind vollständig in Version 1.3 enthalten. Diese Fassung wurde nicht dauerhaft verteilt.</p>
+
+      <h3>Version 1.1 – 5. Juli 2026</h3>
+      <ul>
+        <li>Chat mit Channels, Direktnachrichten, Reaktionen und geteilten Dokumenten.</li>
+        <li>Aufgaben, Kalender, Sitzungen mit Tagesordnung sowie Protokollablage.</li>
+        <li>Mitgliederverwaltung mit Rollen (Vorstand, Admin, Gast) und Einladungen.</li>
+        <li>Benachrichtigungen auf dem Homebildschirm für installierte Geräte.</li>
+      </ul>
+
+      <div class="box box-info">
+        <strong>Ältere Versionen:</strong> Für die Zeit vor Version 1.1 wurde keine Historie geführt. Künftige Änderungen werden hier fortlaufend ergänzt.
+      </div>
+    </section>
+
     <div style="margin-top: 40px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
       <div>
         <div style="font-size: 14px; font-weight: 600; color: #1e293b;">📂 Verfahrensdokumentation</div>
@@ -819,7 +926,7 @@
     </div>
 
     <div class="footer">
-      <p>Vorstands-App – Helmstedter Tennis-Verein e.V. · Stand: Juni 2026 · Bei Fragen wende dich an den App-Administrator.</p>
+      <p>Vorstands-App – Helmstedter Tennis-Verein e.V. · Stand: Juli 2026 (Version 1.3) · Bei Fragen wende dich an den App-Administrator.</p>
     </div>
 
   </main>
