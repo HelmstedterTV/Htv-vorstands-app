@@ -26,7 +26,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useUnreadTotal } from '../../context/UnreadContext'
 
 // Versionsstand der App – manuell hochzählen, damit alle sehen, ob sie den aktuellen Stand nutzen
-const APP_VERSION = '1.2'
+const APP_VERSION = '1.3'
 const APP_VERSION_DATE = '26.07.2026'
 
 const navItems = [
