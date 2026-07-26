@@ -27,13 +27,25 @@ self.addEventListener('activate', event => event.waitUntil(self.clients.claim())
 // ── FCM-Hintergrundnachrichten (App geschlossen oder im Hintergrund) ─────────
 // Wir senden vom Worker reine data-Nachrichten, damit wir Titel/Body/Badge
 // selbst steuern können.
-messaging.onBackgroundMessage(() => {
-  // Die ANZEIGE der Benachrichtigung übernimmt der FCM-Service-Worker bereits
-  // automatisch aus dem webpush.notification-Block (siehe Worker). Würden wir
-  // hier zusätzlich showNotification aufrufen, erschienen ZWEI Banner.
-  // Das Icon-Badge setzen wir bewusst NICHT hier, sondern im push-Listener
-  // unten – dort können wir per event.waitUntil den Worker am Leben halten,
-  // bis setAppBadge fertig ist (sonst wird er oft vorher beendet → kein Badge).
+// ACHTUNG: Sobald ein onBackgroundMessage-Handler registriert ist, zeigt das
+// Firebase-SDK KEINE Benachrichtigung mehr selbst – auch nicht aus dem
+// webpush.notification-Block. Der Handler MUSS die Anzeige übernehmen.
+// Ein leerer Handler bedeutet: gar kein Banner auf allen FCM-Geräten
+// (Android/Samsung + macOS). Genau das war der Fehler.
+// Das Icon-Badge setzt weiterhin der push-Listener unten (dort hält
+// event.waitUntil den Worker am Leben, bis setAppBadge fertig ist).
+messaging.onBackgroundMessage(payload => {
+  const data = payload?.data || {}
+  const title = data.title || payload?.notification?.title || 'HTV Vorstands-App'
+  const body  = data.body  || payload?.notification?.body  || 'Neue Nachricht'
+
+  return self.registration.showNotification(title, {
+    body,
+    icon: ICON,
+    badge: ICON,
+    tag: 'new-message',
+    renotify: true,
+  })
 })
 
 // ── Eingehender Push: Banner (nur iOS) + Icon-Badge (alle), via waitUntil ─────
