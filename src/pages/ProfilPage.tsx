@@ -33,6 +33,7 @@ export default function ProfilPage() {
   const [notifDenied, setNotifDenied] = useState(
     'Notification' in window && Notification.permission === 'denied'
   )
+  const [pushInfo, setPushInfo] = useState('')
 
   // Vordergrund-Nachrichten anzeigen, solange die App offen ist
   useEffect(() => {
@@ -40,19 +41,25 @@ export default function ProfilPage() {
   }, [pushGranted])
 
   async function togglePushNotifications() {
-    if (pushGranted) return   // können nicht per JS widerrufen werden – nur im Browser
     setNotifSaving(true)
     try {
-      const granted = await requestNotificationPermission()
-      setPushGranted(granted)
-      if (!granted) {
-        setNotifDenied(true)
-        return
+      // Erlaubnis kann per JS nicht widerrufen werden. Ist sie bereits erteilt,
+      // dient der Knopf dazu, das Gerät ERNEUT anzumelden – nötig, wenn ein Abo
+      // veraltet ist (Gerät bekommt sonst dauerhaft keine Benachrichtigungen).
+      if (!pushGranted) {
+        const granted = await requestNotificationPermission()
+        setPushGranted(granted)
+        if (!granted) {
+          setNotifDenied(true)
+          return
+        }
       }
-      // FCM-Token holen und beim Cloudflare-Worker registrieren
       if (pushSupported() && currentUser) {
-        await subscribeToPush(currentUser.uid)
+        const ok = await subscribeToPush(currentUser.uid)
+        setPushInfo(ok ? 'Gerät für Benachrichtigungen angemeldet.' : 'Anmeldung fehlgeschlagen.')
         await listenForegroundMessages()
+      } else {
+        setPushInfo('Push wird hier nicht unterstützt (auf iPhone/iPad: App über „Zum Home-Bildschirm" öffnen).')
       }
     } finally {
       setNotifSaving(false)
@@ -239,25 +246,36 @@ export default function ProfilPage() {
               Benachrichtigungen wurden im Browser blockiert. Bitte in den Browser-Einstellungen erlauben und die Seite neu laden.
             </p>
           ) : (
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-slate-700 font-medium">
-                {pushGranted ? (
-                  <span className="flex items-center gap-1.5 text-green-700">
-                    <CheckCircle2 size={14} /> Benachrichtigungen aktiviert
-                  </span>
-                ) : 'Benachrichtigungen aktivieren'}
-              </div>
-              {!pushGranted && (
+            <>
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-slate-700 font-medium">
+                  {pushGranted ? (
+                    <span className="flex items-center gap-1.5 text-green-700">
+                      <CheckCircle2 size={14} /> Benachrichtigungen aktiviert
+                    </span>
+                  ) : 'Benachrichtigungen aktivieren'}
+                </div>
+                {/* Auch bei erteilter Erlaubnis anbieten: erlaubt das erneute
+                    Anmelden dieses Geräts, falls das Abo veraltet ist. */}
                 <button
                   onClick={togglePushNotifications}
                   disabled={notifSaving}
-                  className="px-4 py-2 rounded-lg text-white text-sm font-medium disabled:opacity-40"
-                  style={{ backgroundColor: 'var(--htv-blue)' }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40 ${
+                    pushGranted
+                      ? 'border border-slate-200 text-slate-600'
+                      : 'text-white'
+                  }`}
+                  style={pushGranted ? undefined : { backgroundColor: 'var(--htv-blue)' }}
                 >
-                  {notifSaving ? 'Bitte warten…' : 'Erlauben'}
+                  {notifSaving
+                    ? 'Bitte warten…'
+                    : pushGranted ? 'Gerät neu anmelden' : 'Erlauben'}
                 </button>
+              </div>
+              {pushInfo && (
+                <p className="text-xs text-slate-500 mt-2">{pushInfo}</p>
               )}
-            </div>
+            </>
           )}
         </div>
 
