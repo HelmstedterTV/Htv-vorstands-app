@@ -96,20 +96,21 @@ async function getApplePushToken(
  */
 // Diagnose: meldet den Anmelde-Verlauf an /ping (im wrangler-tail sichtbar).
 // TODO: nach iOS-Debugging wieder entfernen.
-async function pingDiag(stage: string): Promise<void> {
+async function pingDiag(stage: string, uid = '?'): Promise<void> {
   if (!WORKER_URL) return
+  const nav = navigator as Navigator & { maxTouchPoints: number }
   try {
     await fetch(`${WORKER_URL}/ping`, {
       method: 'POST',
       mode: 'no-cors',
-      body: `subscribe[${stage}] apple=${isApplePush()} vapid=${VAPID_PUBLIC ? 'set' : 'MISSING'} ${navigator.userAgent}`,
+      body: `subscribe[${stage}] uid=${uid} apple=${isApplePush()} platform=${navigator.platform} touch=${nav.maxTouchPoints} standalone=${window.matchMedia('(display-mode: standalone)').matches} perm=${typeof Notification !== 'undefined' ? Notification.permission : 'n/a'} vapid=${VAPID_PUBLIC ? 'set' : 'MISSING'} ${navigator.userAgent}`,
     })
   } catch { /* egal */ }
 }
 
 export async function subscribeToPush(uid: string): Promise<boolean> {
   if (!pushSupported() || !WORKER_URL) return false
-  await pingDiag('start')
+  await pingDiag('start', uid)
 
   try {
     const registration = await getRegistration()
@@ -118,7 +119,7 @@ export async function subscribeToPush(uid: string): Promise<boolean> {
     if (isApplePush()) {
       // iOS: direktes Web-Push (FCM erreicht iOS nicht zuverlässig)
       token = await getApplePushToken(registration)
-      await pingDiag('apple-token=' + (token ? 'ok' : 'null'))
+      await pingDiag('apple-token=' + (token ? 'ok' : 'null'), uid)
     } else {
       // Android/Desktop: FCM
       if (!FCM_VAPID_KEY) return false
@@ -130,7 +131,7 @@ export async function subscribeToPush(uid: string): Promise<boolean> {
       })
     }
 
-    if (!token) { await pingDiag('no-token'); return false }
+    if (!token) { await pingDiag('no-token', uid); return false }
 
     const res = await fetch(`${WORKER_URL}/subscribe`, {
       method: 'POST',
@@ -138,10 +139,10 @@ export async function subscribeToPush(uid: string): Promise<boolean> {
       body: JSON.stringify({ uid, token }),
     })
 
-    await pingDiag('posted status=' + res.status)
+    await pingDiag('posted status=' + res.status, uid)
     return res.ok
   } catch (err) {
-    await pingDiag('error ' + (err instanceof Error ? err.name + ':' + err.message : String(err)))
+    await pingDiag('error ' + (err instanceof Error ? err.name + ':' + err.message : String(err)), uid)
     console.warn('Push-Subscription fehlgeschlagen:', err)
     return false
   }

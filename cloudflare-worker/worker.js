@@ -294,13 +294,37 @@ export default {
     }
 
     // ── POST /ping ───────────────────────────────────────────────────────────
-    // Diagnose: der Service Worker meldet sich hier, wenn er beim Push aufwacht.
-    // Im Live-Log (wrangler tail) sehen wir Gerät/Zeitpunkt.
+    // Diagnose: App/Service Worker melden sich hier beim Anmelden bzw. beim
+    // Aufwachen durch einen Push. Die Meldungen werden zusätzlich in KV abgelegt,
+    // damit sie ohne Live-Log per GET /pinglog abrufbar sind (24h Aufbewahrung).
     if (url.pathname === '/ping' && request.method === 'POST') {
       let txt = ''
       try { txt = await request.text() } catch { /* ignore */ }
-      console.log('PING', new Date().toISOString(), txt)
+      const stamp = new Date().toISOString()
+      console.log('PING', stamp, txt)
+      try {
+        await env.PUSH_SUBS.put(`ping_${stamp}`, txt, { expirationTtl: 86400 })
+      } catch { /* Diagnose darf nie stören */ }
       return new Response('ok', { headers: corsHeaders })
+    }
+
+    // ── GET /pinglog?secret=... ──────────────────────────────────────────────
+    // Diagnose: zeigt die gesammelten Ping-Meldungen (neueste zuletzt).
+    if (url.pathname === '/pinglog' && request.method === 'GET') {
+      if (url.searchParams.get('secret') !== env.NOTIFY_SECRET) {
+        return new Response('Unauthorized', { status: 401, headers: corsHeaders })
+      }
+      const list = await env.PUSH_SUBS.list({ prefix: 'ping_' })
+      const entries = []
+      for (const key of list.keys) {
+        entries.push({
+          zeit: key.name.replace('ping_', ''),
+          text: await env.PUSH_SUBS.get(key.name),
+        })
+      }
+      return new Response(JSON.stringify({ count: entries.length, entries }, null, 2), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     // ── POST /subscribe ──────────────────────────────────────────────────────
