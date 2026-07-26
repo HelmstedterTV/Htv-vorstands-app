@@ -74,7 +74,7 @@ self.addEventListener('push', event => {
   })())
 })
 
-// ── Nachrichten vom App-Hauptthread (Badge setzen/löschen) ───────────────────
+// ── Nachrichten vom App-Hauptthread (Badge setzen/löschen, Banner zeigen) ────
 self.addEventListener('message', event => {
   if (event.data?.type === 'SET_BADGE') {
     const count = event.data.count ?? 0
@@ -83,6 +83,22 @@ self.addEventListener('message', event => {
     } else {
       self.navigator.clearAppBadge?.()
     }
+  }
+
+  // Banner, während die App läuft (Tab im Hintergrund / Fenster nicht sichtbar).
+  // Wird von src/utils/notifications.ts -> showNotification() gesendet.
+  // WICHTIG: Ohne diesen Handler bleibt showNotification() wirkungslos –
+  // genau das war der Grund, warum der Banner am Mac zeitweise ausblieb.
+  if (event.data?.type === 'SHOW_NOTIFICATION') {
+    event.waitUntil(
+      self.registration.showNotification(event.data.title || 'HTV Vorstands-App', {
+        body: event.data.body || '',
+        icon: ICON,
+        badge: ICON,
+        tag: 'new-message',
+        renotify: true,
+      })
+    )
   }
 })
 
