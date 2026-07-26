@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verfahrensdokumentation – HTV Web-Applikationen</title>
+  <style>
+    :root {
+      --htv-blue: #1a56db;
+      --htv-blue-light: #3b82f6;
+      --htv-blue-bg: #eff6ff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: #1e293b;
+      background: #f8fafc;
+    }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    nav {
+      width: 250px;
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 20px 0 40px;
+    }
+
+    nav .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      margin-bottom: 12px;
+    }
+
+    nav .logo-icon {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: var(--htv-blue);
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    nav .logo-title { font-size: 12px; font-weight: 600; color: #1e293b; line-height: 1.3; }
+    nav .logo-sub { font-size: 11px; color: #94a3b8; }
+
+    nav ul { list-style: none; padding: 0 6px; }
+
+    nav ul li a {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      text-decoration: none;
+      color: #475569;
+      font-size: 12.5px;
+      transition: background 0.15s;
+    }
+
+    nav ul li a:hover, nav ul li a.active {
+      background: var(--htv-blue-bg);
+      color: var(--htv-blue);
+    }
+
+    nav .section-label {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: #94a3b8;
+      padding: 10px 16px 3px;
+    }
+
+    main { flex: 1; padding: 36px 48px; max-width: 900px; }
+
+    h1 { font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+
+    h2 {
+      font-size: 19px; font-weight: 600; color: #0f172a;
+      margin: 44px 0 14px;
+      padding-top: 44px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    h2:first-of-type { margin-top: 28px; padding-top: 28px; border-top: none; }
+
+    h3 { font-size: 14px; font-weight: 600; color: #1e293b; margin: 20px 0 8px; }
+
+    p { color: #475569; margin-bottom: 10px; }
+    p:last-child { margin-bottom: 0; }
+
+    ul, ol { color: #475569; padding-left: 18px; margin-bottom: 10px; }
+    li { margin-bottom: 3px; }
+
+    .hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+      border-radius: 14px;
+      padding: 28px 32px;
+      color: #fff;
+    }
+
+    .hero h1 { color: #fff; font-size: 20px; margin-bottom: 6px; }
+    .hero p { color: rgba(255,255,255,0.75); margin: 0; font-size: 13px; }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .meta-item {
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    .meta-item .label { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.05em; }
+    .meta-item .value { font-size: 13px; font-weight: 600; color: #fff; margin-top: 2px; }
+
+    section { scroll-margin-top: 24px; }
+
+    .app-header {
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .app-header h2 {
+      color: #fff; border: none; padding: 0; margin: 0 0 4px;
+      font-size: 17px;
+    }
+
+    .app-header p { color: rgba(255,255,255,0.8); margin: 0; font-size: 13px; }
+
+    .app-1 { background: linear-gradient(135deg, #1a56db 0%, #2563eb 100%); }
+    .app-2 { background: linear-gradient(135deg, #16a34a 0%, #059669 100%); }
+    .app-3 { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
+    .app-4 { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+    .shared { background: linear-gradient(135deg, #475569 0%, #334155 100%); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 12px 0;
+    }
+
+    th {
+      background: #f8fafc;
+      text-align: left;
+      padding: 9px 12px;
+      font-size: 11px; font-weight: 600;
+      color: #64748b;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    td strong { color: #1e293b; }
+
+    .box {
+      border-radius: 9px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+
+    .box-info  { background: #eff6ff; border-left: 3px solid var(--htv-blue); color: #1e40af; }
+    .box-warn  { background: #fffbeb; border-left: 3px solid #d97706; color: #92400e; }
+    .box-tip   { background: #f0fdf4; border-left: 3px solid #16a34a; color: #166534; }
+    .box-red   { background: #fef2f2; border-left: 3px solid #dc2626; color: #991b1b; }
+
+    .badge {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      padding: 2px 7px; border-radius: 99px;
+    }
+
+    .badge-admin   { background: #f3e8ff; color: #7c3aed; }
+    .badge-vorstand { background: #dbeafe; color: #1d4ed8; }
+    .badge-gast    { background: #f1f5f9; color: #64748b; }
+
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li { counter-increment: step; display: flex; gap: 12px; margin-bottom: 10px; color: #475569; }
+    .steps li::before {
+      content: counter(step);
+      background: var(--htv-blue); color: #fff;
+      font-size: 11px; font-weight: 700;
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    code {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12.5px;
+    }
+
+    .footer {
+      margin-top: 56px;
+      padding-top: 18px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px; color: #94a3b8;
+    }
+
+    @media (max-width: 768px) {
+      nav { display: none; }
+      main { padding: 20px 16px; }
+      .meta-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Navigation -->
+  <nav>
+    <div class="logo">
+      <div class="logo-icon">HTV</div>
+      <div>
+        <div class="logo-title">Verfahrensdokumentation</div>
+        <div class="logo-sub">Web-Applikationen</div>
+      </div>
+    </div>
+
+    <div class="section-label">Allgemein</div>
+    <ul>
+      <li><a href="#uebersicht">📋 Übersicht</a></li>
+    </ul>
+
+    <div class="section-label">Apps</div>
+    <ul>
+      <li><a href="#schluessel">🔑 Schlüsselverwaltung</a></li>
+      <li><a href="#anlagen">🏗️ HTV-Anlagen</a></li>
+      <li><a href="#vorstands-app">💬 Vorstands-App</a></li>
+      <li><a href="#vertraege">📄 Vertragsmanagement</a></li>
+    </ul>
+
+    <div class="section-label">Gemeinsam</div>
+    <ul>
+      <li><a href="#zustaendigkeiten">👤 Zuständigkeiten</a></li>
+      <li><a href="#uebergabe">🔄 Zugangsweitergabe</a></li>
+      <li><a href="#ressourcen">🔗 Ressourcen</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <!-- Hero -->
+    <div class="hero">
+      <h1>Verfahrensdokumentation – HTV Web-Applikationen</h1>
+      <p>Helmstedter Tennis-Verein e.V. · Einarbeitung Dritter / Nachfolge · Stand: Juni 2026</p>
+      <div class="meta-grid">
+        <div class="meta-item">
+          <div class="label">Version</div>
+          <div class="value">2.0</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Erstellt</div>
+          <div class="value">Mai 2026</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Verantwortlich</div>
+          <div class="value">1. Vorsitzender</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Apps</div>
+          <div class="value">4 Systeme</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Übersicht -->
+    <section id="uebersicht">
+      <h2>Übersicht aller HTV-Applikationen</h2>
+      <p>Der HTV betreibt vier Web-Applikationen auf Basis von Google Firebase und GitHub Pages. Alle Systeme sind kostenlos (Firebase Spark Plan) und erfordern keinen eigenen Server.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>App</th>
+            <th>URL</th>
+            <th>Firebase-Projekt</th>
+            <th>Technologie</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Schlüsselverwaltung</strong></td>
+            <td><a href="https://helmstedtertv.github.io/schlusselapp/" target="_blank">helmstedtertv.github.io/schlusselapp</a></td>
+            <td><code>schluesselapp-15d55</code></td>
+            <td>HTML / Vanilla JS</td>
+          </tr>
+          <tr>
+            <td><strong>HTV-Anlagen</strong></td>
+            <td><a href="https://helmstedtertv.github.io/htv-anlagen/" target="_blank">helmstedtertv.github.io/htv-anlagen</a></td>
+            <td><code>htv-anlagen</code></td>
+            <td>React + Vite</td>
+          </tr>
+          <tr>
+            <td><strong>Vorstands-App</strong></td>
+            <td><a href="https://helmstedtertv.github.io/Htv-vorstands-app/" target="_blank">helmstedtertv.github.io/Htv-vorstands-app</a></td>
+            <td><code>htv-vorstands-app</code></td>
+            <td>React + Vite + TypeScript</td>
+          </tr>
+          <tr>
+            <td><strong>Vertragsmanagement</strong></td>
+            <td><a href="https://helmstedtertv.github.io/htv-vertraege/" target="_blank">helmstedtertv.github.io/htv-vertraege</a></td>
+            <td><code>htv-vertraege</code></td>
+            <td>React + Vite</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="box box-info">
+        <strong>Gemeinsame Infrastruktur:</strong> Alle Apps nutzen Firebase Authentication (E-Mail/Passwort) und Cloud Firestore als Datenbank. Das Hosting erfolgt über GitHub Pages – kostenlos und ohne eigenen Server.
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- APP 1: SCHLÜSSELVERWALTUNG                            -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section id="schluessel">
+      <div class="app-header app-1">
+        <h2>🔑 App 1: Schlüsselverwaltung</h2>
+        <p>Digitale Verwaltung der ausgegebenen Vereinsschlüssel. Ausgelegt für 2–3 autorisierte Benutzer.</p>
+      </div>
+
+      <h3>1.1 Zugang / URL</h3>
+      <table>
+        <thead><tr><th>Eigenschaft</th><th>Wert</th></tr></thead>
+        <tbody>
+          <tr><td><strong>App-URL</strong></td><td><a href="https://helmstedtertv.github.io/schlusselapp/" target="_blank">https://helmstedtertv.github.io/schlusselapp/</a></td></tr>
+          <tr><td><strong>Anmeldung</strong></td><td>E-Mail + Passwort (Firebase Authentication)</td></tr>
+          <tr><td><strong>Berechtigte Nutzer</strong></td><td>p.schinnerling@gmail.com, vorstand.htv@gmail.com</td></tr>
+          <tr><td><strong>Passwortänderung</strong></td><td>Firebase Console → Authentication → Nutzer</td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.2 Technische Infrastruktur</h3>
+      <table>
+        <thead><tr><th>Komponente</th><th>Dienst / Details</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Frontend</strong></td><td>GitHub Pages – statisches Hosting (HTML/JS), kostenlos</td></tr>
+          <tr><td><strong>Quellcode-Repository</strong></td><td><a href="https://github.com/helmstedtertv/schlusselapp" target="_blank">github.com/helmstedtertv/schlusselapp</a> (public)</td></tr>
+          <tr><td><strong>Datenspeicherung</strong></td><td>Google Firebase Firestore (NoSQL-Datenbank)</td></tr>
+          <tr><td><strong>Authentifizierung</strong></td><td>Firebase Authentication (E-Mail/Passwort)</td></tr>
+          <tr><td><strong>Firebase-Projekt-ID</strong></td><td><code>schluesselapp-15d55</code></td></tr>
+          <tr><td><strong>Firebase-Konsole</strong></td><td><a href="https://console.firebase.google.com/project/schluesselapp-15d55" target="_blank">console.firebase.google.com/project/schluesselapp-15d55</a></td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.3 Zugangsdaten</h3>
+      <table>
+        <thead><tr><th>Zugang</th><th>Details</th></tr></thead>
+        <tbody>
+          <tr><td><strong>GitHub-Organisation</strong></td><td><a href="https://github.com/helmstedtertv" target="_blank">github.com/helmstedtertv</a></td></tr>
+          <tr><td><strong>Repository</strong></td><td><a href="https://github.com/helmstedtertv/schlusselapp" target="_blank">helmstedtertv/schlusselapp</a> (public) – GitHub Pages Branch: main, Ordner: /</td></tr>
+          <tr><td><strong>Deployment</strong></td><td>Direkt: index.html im Root des Repos bearbeiten/ersetzen</td></tr>
+          <tr><td><strong>Firebase-Konsole</strong></td><td>Google-Konto P. Schinnerling</td></tr>
+          <tr><td><strong>API-Schlüssel</strong></td><td>In index.html eingebettet; mit HTTP-Referrer-Einschränkung auf helmstedtertv.github.io gesichert</td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.4 Datenspeicherung</h3>
+      <table>
+        <thead><tr><th>Datenkategorie</th><th>Speicherort</th><th>Zugriff</th></tr></thead>
+        <tbody>
+          <tr><td>Schlüsseldaten (wer hat welchen Schlüssel)</td><td>Firestore-Datenbank</td><td>Firebase Console</td></tr>
+          <tr><td>Benutzerdaten (Login-Konten)</td><td>Firebase Authentication</td><td>Firebase Console → Auth</td></tr>
+          <tr><td>App-Code (HTML/JS/CSS)</td><td>GitHub Repository</td><td>github.com/helmstedtertv/schlusselapp</td></tr>
+          <tr><td>API-Konfiguration</td><td>index.html im Repo</td><td>GitHub – Datei direkt bearbeiten</td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.5 Wartung – typische Aufgaben</h3>
+      <table>
+        <thead><tr><th>Aufgabe</th><th>Vorgehen</th></tr></thead>
+        <tbody>
+          <tr><td>Neuen Benutzer hinzufügen</td><td>Firebase Console → Authentication → „Nutzer hinzufügen" → E-Mail + Passwort</td></tr>
+          <tr><td>Passwort zurücksetzen</td><td>Firebase Console → Authentication → Nutzer anklicken → „Passwort zurücksetzen"</td></tr>
+          <tr><td>Benutzer entfernen</td><td>Firebase Console → Authentication → Nutzer → Löschen</td></tr>
+          <tr><td>App-Code ändern</td><td>github.com/helmstedtertv/schlusselapp → index.html bearbeiten → Commit → Live sofort</td></tr>
+          <tr><td>Daten sichern</td><td>Firebase Console → Firestore → Exportieren (JSON)</td></tr>
+          <tr><td>Firestore-Regeln prüfen</td><td>Firebase Console → Firestore → Regeln</td></tr>
+        </tbody>
+      </table>
+
+      <h3>1.6 Sicherheitshinweise</h3>
+      <ul>
+        <li>Der Firebase API-Schlüssel in index.html ist durch eine HTTP-Referrer-Einschränkung auf <code>helmstedtertv.github.io</code> beschränkt.</li>
+        <li>Google hat im Mai 2026 eine Sicherheitswarnung über den öffentlich sichtbaren API-Schlüssel gesendet. Der Schlüssel wurde daraufhin mit Referrer-Restriction gesichert.</li>
+        <li>Die App-Daten sind nicht hochsensibel (Schlüsselvergabe), aber der Zugang sollte auf bekannte Nutzer beschränkt bleiben.</li>
+        <li>Bei Verdacht auf Missbrauch: API-Schlüssel in Google Cloud Console neu generieren und in index.html ersetzen.</li>
+      </ul>
+
+      <h3>1.7 Kosten</h3>
+      <table>
+        <thead><tr><th>Dienst</th><th>Kosten</th></tr></thead>
+        <tbody>
+          <tr><td>GitHub Pages</td><td>Kostenlos (public Repository)</td></tr>
+          <tr><td>Firebase Firestore (Spark Plan)</td><td>Kostenlos bis zu Freikontingent (ausreichend für HTV)</td></tr>
+          <tr><td>Firebase Authentication</td><td>Kostenlos</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- APP 2: HTV-ANLAGEN                                    -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section id="anlagen">
+      <div class="app-header app-2">
+        <h2>🏗️ App 2: HTV-Anlagen (Technische Dokumentation)</h2>
+        <p>Digitales Pflichtenheft für alle technischen Anlagen des Vereins. Anlagendaten, PDFs, Wartungsintervalle, Störungsprotokolle, Servicekontakte.</p>
+      </div>
+
+      <h3>2.1 Zugang / URL</h3>
+      <table>
+        <thead><tr><th>Eigenschaft</th><th>Wert</th></tr></thead>
+        <tbody>
+          <tr><td><strong>App-URL</strong></td><td><a href="https://helmstedtertv.github.io/htv-anlagen/" target="_blank">https://helmstedtertv.github.io/htv-anlagen/</a></td></tr>
+          <tr><td><strong>Anmeldung</strong></td><td>Firebase Authentication (E-Mail + Passwort)</td></tr>
+          <tr><td><strong>Lokaler Quellcode</strong></td><td><code>/Users/Peter/htv-anlagen/</code> (Mac mini)</td></tr>
+          <tr><td><strong>Framework</strong></td><td>React + Vite</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.2 Technische Infrastruktur</h3>
+      <table>
+        <thead><tr><th>Komponente</th><th>Dienst / Details</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Frontend</strong></td><td>React (Vite-Build), deployed auf GitHub Pages</td></tr>
+          <tr><td><strong>Quellcode-Repository</strong></td><td><a href="https://github.com/helmstedtertv/htv-anlagen" target="_blank">github.com/helmstedtertv/htv-anlagen</a></td></tr>
+          <tr><td><strong>Datenspeicherung</strong></td><td>Google Firebase Firestore (NoSQL-Datenbank)</td></tr>
+          <tr><td><strong>Authentifizierung</strong></td><td>Firebase Authentication (E-Mail/Passwort)</td></tr>
+          <tr><td><strong>Firebase-Projekt-ID</strong></td><td><code>htv-anlagen</code></td></tr>
+          <tr><td><strong>Firebase-Konsole</strong></td><td><a href="https://console.firebase.google.com/project/htv-anlagen" target="_blank">console.firebase.google.com/project/htv-anlagen</a></td></tr>
+          <tr><td><strong>GitHub-Organisation</strong></td><td><a href="https://github.com/helmstedtertv" target="_blank">github.com/helmstedtertv</a></td></tr>
+          <tr><td><strong>Datenbank-Region</strong></td><td>europe-west3 (Frankfurt)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.3 Datenspeicherung</h3>
+      <table>
+        <thead><tr><th>Datenkategorie</th><th>Speicherort</th><th>Zugriff</th></tr></thead>
+        <tbody>
+          <tr><td>Anlagendaten (Name, Hersteller, Seriennummer …)</td><td>Firestore-Datenbank</td><td>Firebase Console</td></tr>
+          <tr><td>Wartungseinträge und -intervalle</td><td>Firestore-Datenbank</td><td>Firebase Console</td></tr>
+          <tr><td>Störungsprotokolle</td><td>Firestore-Datenbank</td><td>Firebase Console</td></tr>
+          <tr><td>Dokumente / PDF-Links</td><td>Firestore (als Google Drive Links) oder Firebase Storage</td><td>Firebase Console</td></tr>
+          <tr><td>Servicekontakte</td><td>Firestore-Datenbank</td><td>Firebase Console</td></tr>
+          <tr><td>App-Quellcode</td><td>GitHub Repository htv-anlagen</td><td>github.com/helmstedtertv/htv-anlagen</td></tr>
+          <tr><td>Benutzerdaten (Login-Konten)</td><td>Firebase Authentication</td><td>Firebase Console → Auth</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.4 Deployment – App aktualisieren</h3>
+      <p>Die HTV-Anlagen-App wird lokal auf dem Mac mini entwickelt und danach auf GitHub Pages deployed:</p>
+      <table>
+        <thead><tr><th>Schritt</th><th>Befehl / Aktion</th></tr></thead>
+        <tbody>
+          <tr><td>1. Ins Projektverzeichnis wechseln</td><td><code>cd ~/htv-anlagen</code></td></tr>
+          <tr><td>2. Änderungen vornehmen</td><td>Dateien im Ordner <code>src/</code> bearbeiten</td></tr>
+          <tr><td>3. Lokal testen (optional)</td><td><code>npm run dev</code> → Browser: http://localhost:5173</td></tr>
+          <tr><td>4. Build und Deployment</td><td><code>npm run deploy</code></td></tr>
+          <tr><td>5. Ergebnis prüfen</td><td>https://helmstedtertv.github.io/htv-anlagen/ aufrufen</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.5 Lokale Entwicklungsumgebung (Mac mini)</h3>
+      <table>
+        <thead><tr><th>Voraussetzung</th><th>Status / Wo prüfen</th></tr></thead>
+        <tbody>
+          <tr><td>Node.js</td><td>Installiert – Prüfen: <code>node --version</code> im Terminal</td></tr>
+          <tr><td>npm</td><td>Installiert – Prüfen: <code>npm --version</code></td></tr>
+          <tr><td>gh-pages Paket</td><td>Im Projekt installiert (package.json)</td></tr>
+          <tr><td>Firebase SDK</td><td><code>npm install firebase</code> (im Projektordner)</td></tr>
+          <tr><td>Projektordner</td><td><code>/Users/Peter/htv-anlagen/</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.6 Wartung – typische Aufgaben</h3>
+      <table>
+        <thead><tr><th>Aufgabe</th><th>Vorgehen</th></tr></thead>
+        <tbody>
+          <tr><td>Neuen Benutzer hinzufügen</td><td>Firebase Console → Authentication → „Nutzer hinzufügen"</td></tr>
+          <tr><td>Passwort zurücksetzen</td><td>Firebase Console → Authentication → Nutzer → Passwort zurücksetzen</td></tr>
+          <tr><td>Anlage hinzufügen/bearbeiten</td><td>Direkt in der App über den Browser (kein Deployment nötig)</td></tr>
+          <tr><td>App-Funktion ändern (Code)</td><td>Mac mini: Datei bearbeiten → <code>npm run deploy</code></td></tr>
+          <tr><td>Daten sichern</td><td>Firebase Console → Firestore → Exportieren</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.7 Kosten</h3>
+      <table>
+        <thead><tr><th>Dienst</th><th>Kosten</th></tr></thead>
+        <tbody>
+          <tr><td>GitHub Pages</td><td>Kostenlos (public Repository)</td></tr>
+          <tr><td>Firebase Firestore (Spark Plan)</td><td>Kostenlos bis zu Freikontingent</td></tr>
+          <tr><td>Firebase Authentication</td><td>Kostenlos</td></tr>
+          <tr><td>Firebase Storage (für PDF-Upload)</td><td>Kostenlos bis 5 GB</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- APP 3: VORSTANDS-APP                                  -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section id="vorstands-app">
+      <div class="app-header app-3">
+        <h2>💬 App 3: Vorstands-App</h2>
+        <p>Zentrale Kommunikations- und Organisationsplattform für den HTV-Vorstand. Chat, Aufgaben, Kalender, Sitzungen, Protokolle.</p>
+      </div>
+
+      <h3>3.1 Zugang / URL</h3>
+      <table>
+        <thead><tr><th>Eigenschaft</th><th>Wert</th></tr></thead>
+        <tbody>
+          <tr><td><strong>App-URL</strong></td><td><a href="https://helmstedtertv.github.io/Htv-vorstands-app/" target="_blank">https://helmstedtertv.github.io/Htv-vorstands-app/</a></td></tr>
+          <tr><td><strong>Anmeldung</strong></td><td>E-Mail + Passwort (Firebase Authentication)</td></tr>
+          <tr><td><strong>Nutzerverwaltung</strong></td><td>Einladung über die App (Admin-Bereich) oder Firebase Console</td></tr>
+          <tr><td><strong>Lokaler Quellcode</strong></td><td><code>/Users/Peter/Claude/Projects/Vorstands-App/</code> (Mac mini)</td></tr>
+          <tr><td><strong>Framework</strong></td><td>React + Vite + TypeScript</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.2 Technische Infrastruktur</h3>
+      <table>
+        <thead><tr><th>Komponente</th><th>Dienst / Details</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Frontend</strong></td><td>React + TypeScript (Vite-Build), deployed auf GitHub Pages</td></tr>
+          <tr><td><strong>Quellcode-Repository</strong></td><td><a href="https://github.com/helmstedtertv/Htv-vorstands-app" target="_blank">github.com/helmstedtertv/Htv-vorstands-app</a></td></tr>
+          <tr><td><strong>Datenspeicherung</strong></td><td>Google Firebase Firestore (NoSQL-Datenbank)</td></tr>
+          <tr><td><strong>Authentifizierung</strong></td><td>Firebase Authentication (E-Mail/Passwort)</td></tr>
+          <tr><td><strong>Dateiablage</strong></td><td>Firebase Storage (für Chat-Dateianhänge)</td></tr>
+          <tr><td><strong>Firebase-Projekt-ID</strong></td><td><code>htv-vorstands-app</code></td></tr>
+          <tr><td><strong>Firebase Auth Domain</strong></td><td><code>htv-vorstands-app.firebaseapp.com</code></td></tr>
+          <tr><td><strong>Firebase-Konsole</strong></td><td><a href="https://console.firebase.google.com/project/htv-vorstands-app" target="_blank">console.firebase.google.com/project/htv-vorstands-app</a></td></tr>
+          <tr><td><strong>Protokolle (Google Drive)</strong></td><td>Eingebetteter Drive-Ordner (Folder-ID: <code>1aiU52dQzhW32PBH9IF87tI-2oAeOdx3g</code>)</td></tr>
+          <tr><td><strong>Kalender-Integration</strong></td><td>Optionale Google Calendar API (OAuth 2.0)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.3 Rollen & Berechtigungen</h3>
+      <table>
+        <thead><tr><th>Rolle</th><th>Rechte</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-admin">Admin</span></td>
+            <td>Vollzugriff inkl. Mitgliederverwaltung. Kann neue Nutzer einladen, Rollen ändern, Zugänge entfernen.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-vorstand">Vorstand</span></td>
+            <td>Zugriff auf Chat, Aufgaben, Kalender, Sitzungen, Protokolle. Kann Inhalte erstellen und bearbeiten.</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-gast">Gast</span></td>
+            <td>Lesezugriff auf freigegebene Channels. Keine Schreibrechte für Aufgaben, Termine oder Sitzungen.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>3.4 Datenspeicherung (Firestore-Collections)</h3>
+      <table>
+        <thead><tr><th>Collection</th><th>Inhalt</th><th>Zugriff</th></tr></thead>
+        <tbody>
+          <tr><td><code>users</code></td><td>Nutzerprofile (Name, E-Mail, Rolle, lastSeen)</td><td>Firebase Console</td></tr>
+          <tr><td><code>channels</code></td><td>Chat-Channels (Name, Typ, Mitglieder)</td><td>Firebase Console</td></tr>
+          <tr><td><code>messages</code></td><td>Chat-Nachrichten (Text, Autor, Zeitstempel, Reaktionen)</td><td>Firebase Console</td></tr>
+          <tr><td><code>directMessages</code></td><td>Direkt-Nachrichten-Konversationen (Teilnehmer)</td><td>Firebase Console</td></tr>
+          <tr><td><code>todos</code></td><td>Aufgaben (Titel, Priorität, Zuständiger, Status)</td><td>Firebase Console</td></tr>
+          <tr><td><code>events</code></td><td>Kalendertermine inkl. Wiederholungsregeln</td><td>Firebase Console</td></tr>
+          <tr><td><code>sitzungen</code></td><td>Vorstandssitzungen mit Tagesordnungspunkten</td><td>Firebase Console</td></tr>
+          <tr><td>Firebase Storage</td><td>Chat-Dateianhänge (Bilder, Dokumente)</td><td>Firebase Console → Storage</td></tr>
+          <tr><td>Google Drive</td><td>Sitzungsprotokolle (separater Drive-Ordner)</td><td>Google Drive</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.5 Deployment – App aktualisieren</h3>
+      <table>
+        <thead><tr><th>Schritt</th><th>Befehl / Aktion</th></tr></thead>
+        <tbody>
+          <tr><td>1. Ins Projektverzeichnis wechseln</td><td><code>cd ~/Claude/Projects/Vorstands-App</code></td></tr>
+          <tr><td>2. Änderungen vornehmen</td><td>Dateien im Ordner <code>src/</code> bearbeiten</td></tr>
+          <tr><td>3. Lokal testen</td><td><code>npm run dev</code> → http://localhost:5173</td></tr>
+          <tr><td>4. Build und Deployment</td><td><code>npm run deploy</code></td></tr>
+          <tr><td>5. Ergebnis prüfen</td><td>helmstedtertv.github.io/Htv-vorstands-app/ aufrufen</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.6 Nutzerverwaltung über die App</h3>
+      <p>Admins können Nutzer direkt über den Menüpunkt <strong>Mitglieder</strong> in der App einladen – ohne Firebase Console:</p>
+      <ol class="steps">
+        <li>Als Admin einloggen → Menü → „Mitglieder"</li>
+        <li>„Mitglied einladen" → Name, E-Mail, Rolle eingeben</li>
+        <li>Die Person erhält eine E-Mail mit Link zum Passwort setzen</li>
+        <li>Rolle kann jederzeit per Dropdown geändert werden</li>
+      </ol>
+
+      <h3>3.7 Wartung – typische Aufgaben</h3>
+      <table>
+        <thead><tr><th>Aufgabe</th><th>Vorgehen</th></tr></thead>
+        <tbody>
+          <tr><td>Nutzer einladen</td><td>App → Admin → Mitglieder → „Mitglied einladen" (oder Firebase Console)</td></tr>
+          <tr><td>Passwort zurücksetzen</td><td>Login-Seite → „Passwort vergessen" (oder App → Admin → Einladung erneut senden)</td></tr>
+          <tr><td>Nutzer entfernen</td><td>App → Admin → Papierkorb-Symbol (entfernt Profil, Auth-Konto bleibt)</td></tr>
+          <tr><td>Google Drive Protokoll-Ordner ändern</td><td><code>src/pages/ProtokolePage.tsx</code> → Konstante <code>DRIVE_FOLDER_ID</code> anpassen → <code>npm run deploy</code></td></tr>
+          <tr><td>Firebase Security Rules prüfen</td><td>Firebase Console → Firestore → Regeln</td></tr>
+          <tr><td>Daten exportieren / sichern</td><td>Firebase Console → Firestore → Exportieren (JSON)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.8 Kosten</h3>
+      <table>
+        <thead><tr><th>Dienst</th><th>Kosten</th></tr></thead>
+        <tbody>
+          <tr><td>GitHub Pages</td><td>Kostenlos</td></tr>
+          <tr><td>Firebase Firestore (Spark Plan)</td><td>Kostenlos bis zu Freikontingent</td></tr>
+          <tr><td>Firebase Authentication</td><td>Kostenlos</td></tr>
+          <tr><td>Firebase Storage</td><td>Kostenlos bis 5 GB</td></tr>
+          <tr><td>Google Calendar API</td><td>Kostenlos (Kontingent für Vereinsbetrieb ausreichend)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- APP 4: VERTRAGSMANAGEMENT                             -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section id="vertraege">
+      <div class="app-header app-4">
+        <h2>📄 App 4: Vertragsmanagement</h2>
+        <p>Verwaltung von Vereinsverträgen (Dienstleister, Pacht, Lieferanten etc.). Separates Firebase-Projekt, eigene Nutzerverwaltung.</p>
+      </div>
+
+      <h3>4.1 Zugang / URL</h3>
+      <table>
+        <thead><tr><th>Eigenschaft</th><th>Wert</th></tr></thead>
+        <tbody>
+          <tr><td><strong>App-URL</strong></td><td><a href="https://helmstedtertv.github.io/htv-vertraege/" target="_blank">https://helmstedtertv.github.io/htv-vertraege/</a></td></tr>
+          <tr><td><strong>Anmeldung</strong></td><td>Firebase Authentication (E-Mail + Passwort)</td></tr>
+          <tr><td><strong>Standardnutzer</strong></td><td>vorstand.htv@gmail.com</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.2 Technische Infrastruktur</h3>
+      <table>
+        <thead><tr><th>Komponente</th><th>Dienst / Details</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Frontend</strong></td><td>React + Vite, deployed auf GitHub Pages</td></tr>
+          <tr><td><strong>Quellcode-Repository</strong></td><td><a href="https://github.com/helmstedtertv/htv-vertraege" target="_blank">github.com/helmstedtertv/htv-vertraege</a></td></tr>
+          <tr><td><strong>Datenspeicherung</strong></td><td>Google Firebase Firestore</td></tr>
+          <tr><td><strong>Authentifizierung</strong></td><td>Firebase Authentication (E-Mail/Passwort)</td></tr>
+          <tr><td><strong>Firebase-Projekt-ID</strong></td><td><code>htv-vertraege</code></td></tr>
+          <tr><td><strong>Firebase Auth Domain</strong></td><td><code>htv-vertraege.firebaseapp.com</code></td></tr>
+          <tr><td><strong>Firebase-Konsole</strong></td><td><a href="https://console.firebase.google.com/project/htv-vertraege" target="_blank">console.firebase.google.com/project/htv-vertraege</a></td></tr>
+        </tbody>
+      </table>
+
+      <div class="box box-info">
+        <strong>Passwort-Reset über Vorstands-App:</strong> Admins können in der Vorstands-App unter <strong>Mitglieder → Zugang Vertragsmanagement</strong> direkt eine Passwort-Reset-E-Mail für die Vertrags-App versenden, ohne sich separat einzuloggen.
+      </div>
+
+      <h3>4.3 Deployment – App aktualisieren</h3>
+      <table>
+        <thead><tr><th>Schritt</th><th>Befehl / Aktion</th></tr></thead>
+        <tbody>
+          <tr><td>1. Quellcode klonen/öffnen</td><td><code>git clone https://github.com/helmstedtertv/htv-vertraege</code></td></tr>
+          <tr><td>2. Abhängigkeiten installieren</td><td><code>npm install</code></td></tr>
+          <tr><td>3. Lokal testen</td><td><code>npm run dev</code></td></tr>
+          <tr><td>4. Deployment</td><td><code>npm run deploy</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.4 Kosten</h3>
+      <table>
+        <thead><tr><th>Dienst</th><th>Kosten</th></tr></thead>
+        <tbody>
+          <tr><td>GitHub Pages</td><td>Kostenlos</td></tr>
+          <tr><td>Firebase Firestore (Spark Plan)</td><td>Kostenlos bis zu Freikontingent</td></tr>
+          <tr><td>Firebase Authentication</td><td>Kostenlos</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- GEMEINSAME INFORMATIONEN                              -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section id="zustaendigkeiten">
+      <div class="app-header shared">
+        <h2>👤 Zuständigkeiten und Konten</h2>
+        <p>Alle Apps werden aktuell unter einem Google- und GitHub-Konto betrieben.</p>
+      </div>
+
+      <table>
+        <thead><tr><th>Konto / Dienst</th><th>Zugehörigkeit</th><th>Zugang</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Google-Konto (Firebase)</strong></td><td>P. Schinnerling</td><td>Persönliches Google-Konto (p.schinnerling@gmail.com)</td></tr>
+          <tr><td><strong>GitHub-Konto (pschinnerl)</strong></td><td>P. Schinnerling</td><td><a href="https://github.com/pschinnerl" target="_blank">github.com/pschinnerl</a> (persönliches Konto, Mitglied der Org)</td></tr>
+          <tr><td><strong>GitHub-Org (helmstedtertv)</strong></td><td>HTV Helmstedt</td><td><a href="https://github.com/helmstedtertv" target="_blank">github.com/helmstedtertv</a> (Vorstands-App, Verträge)</td></tr>
+          <tr><td><strong>Firebase-Projektliste</strong></td><td>P. Schinnerling</td><td><a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></td></tr>
+          <tr><td><strong>Vereins-E-Mail</strong></td><td>HTV Helmstedt</td><td>vorstand.htv@gmail.com</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Was ein Dritter braucht, um die Apps zu pflegen</h3>
+
+      <p><strong>Minimum (nur Benutzerverwaltung und Datenpflege):</strong></p>
+      <ul>
+        <li>Zugang zum Google-Konto von P. Schinnerling – oder eigenes Konto als Mitinhaber in Firebase hinzufügen</li>
+        <li>Firebase Console → Projekteinstellungen → Nutzer und Berechtigungen → neue E-Mail als Editor einladen</li>
+      </ul>
+
+      <p><strong>Für Codeänderungen an Schlüsselverwaltung:</strong></p>
+      <ul>
+        <li>GitHub-Zugang: Mitglied der Organisation <code>helmstedtertv</code> werden oder Repo <code>helmstedtertv/schlusselapp</code> direkt teilen</li>
+        <li>Keine lokale Entwicklungsumgebung nötig – index.html direkt auf GitHub bearbeiten</li>
+      </ul>
+
+      <p><strong>Für Codeänderungen an HTV-Anlagen:</strong></p>
+      <ul>
+        <li>GitHub-Zugang: Mitglied der Organisation <code>helmstedtertv</code> werden oder Repo <code>helmstedtertv/htv-anlagen</code> teilen</li>
+        <li>Mac mini mit Node.js und npm – oder eigener Rechner mit Node.js</li>
+        <li>Projektordner <code>/Users/Peter/htv-anlagen/</code> übertragen (ZIP oder Git Clone)</li>
+        <li>Danach: <code>npm install</code> im Projektordner, dann <code>npm run deploy</code> zum Deployment</li>
+      </ul>
+
+      <p><strong>Für Codeänderungen an Vorstands-App:</strong></p>
+      <ul>
+        <li>GitHub-Zugang zur Organisation <code>helmstedtertv</code> oder Repository <code>Htv-vorstands-app</code></li>
+        <li>Node.js + npm auf dem eigenen Rechner</li>
+        <li>Projektordner via <code>git clone</code> herunterladen</li>
+        <li>Danach: <code>npm install</code>, dann <code>npm run deploy</code></li>
+      </ul>
+    </section>
+
+    <section id="uebergabe">
+      <h2>🔄 Zugangsweitergabe (Schritt für Schritt)</h2>
+      <table>
+        <thead><tr><th>Schritt</th><th>Aktion</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>1. Firebase-Mitinhaber einladen</td>
+            <td>Firebase Console → Projekteinstellungen (Zahnrad) → Nutzer und Berechtigungen → Mitglied hinzufügen → E-Mail der neuen Person → Rolle: Editor</td>
+          </tr>
+          <tr>
+            <td>2. GitHub-Repositories übergeben</td>
+            <td>
+              Alle Repos liegen in der Organisation <strong>helmstedtertv</strong>: GitHub → github.com/helmstedtertv → Settings → Members → neue Person einladen; oder einzelne Repos unter Repository Settings → Collaborators teilen.
+            </td>
+          </tr>
+          <tr>
+            <td>3. Quellcode HTV-Anlagen</td>
+            <td>Ordner <code>/Users/Peter/htv-anlagen/</code> als ZIP exportieren und übergeben; oder: <code>git clone</code> vom GitHub-Repository</td>
+          </tr>
+          <tr>
+            <td>4. Quellcode Vorstands-App</td>
+            <td><code>git clone https://github.com/helmstedtertv/Htv-vorstands-app</code> – kein separater Transfer nötig</td>
+          </tr>
+          <tr>
+            <td>5. Zugangsdaten App-Nutzer</td>
+            <td>Liste der App-Nutzer in Firebase Authentication prüfen; für Vorstands-App: Admin-Zugang in der App übergeben</td>
+          </tr>
+          <tr>
+            <td>6. Google Drive Protokoll-Ordner</td>
+            <td>Google Drive → Ordner „HTV Protokolle" → Freigabe → neue Person als Mitbearbeiter einladen</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="box box-tip">
+        <strong>Nachfolge gesichert:</strong> Beide Google-Konten – <strong>p.schinnerling@gmail.com</strong> und <strong>vorstand.htv@gmail.com</strong> – sind in allen vier Firebase-Projekten als <strong>Inhaber</strong> eingetragen. Ein Zugangsverlust bei einem Konto gefährdet den Betrieb der Apps nicht.
+      </div>
+    </section>
+
+    <section id="ressourcen">
+      <h2>🔗 Ressourcen und Links</h2>
+      <table>
+        <thead><tr><th>Thema</th><th>Ressource</th></tr></thead>
+        <tbody>
+          <tr><td>Firebase Dokumentation</td><td><a href="https://firebase.google.com/docs" target="_blank">firebase.google.com/docs</a></td></tr>
+          <tr><td>Firebase Konsole</td><td><a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></td></tr>
+          <tr><td>GitHub Pages Dokumentation</td><td><a href="https://docs.github.com/en/pages" target="_blank">docs.github.com/en/pages</a></td></tr>
+          <tr><td>GitHub Repositories HTV (Org)</td><td><a href="https://github.com/helmstedtertv" target="_blank">github.com/helmstedtertv</a></td></tr>
+          <tr><td>GitHub-Konto P. Schinnerling</td><td><a href="https://github.com/pschinnerl" target="_blank">github.com/pschinnerl</a></td></tr>
+          <tr><td>Vite / React Dokumentation</td><td><a href="https://vitejs.dev" target="_blank">vitejs.dev</a> / <a href="https://react.dev" target="_blank">react.dev</a></td></tr>
+          <tr><td>Vorstands-App Hilfedatei</td><td><a href="./hilfe.html">hilfe.html</a></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="footer">
+      <p>Helmstedter Tennis-Verein e.V. · Verfahrensdokumentation Web-Applikationen · Version 2.0 · Juni 2026 · Verantwortlich: 1. Vorsitzender</p>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('section[id]')
+  const navLinks = document.querySelectorAll('nav a[href^="#"]')
+  function setActive() {
+    let current = ''
+    sections.forEach(s => {
+      if (s.getBoundingClientRect().top <= 80) current = s.id
+    })
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current)
+    })
+  }
+  window.addEventListener('scroll', setActive, { passive: true })
+  setActive()
+</script>
+</body>
+</html>
