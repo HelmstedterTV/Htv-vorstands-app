@@ -23,8 +23,30 @@ jobs:
       - name: Abhängigkeiten installieren
         run: npm ci
 
+      # WICHTIG: .env.local liegt bewusst nicht im Repository. Ohne diese Werte
+      # baut die Action eine App ohne Worker-URL und ohne VAPID-Schlüssel –
+      # dann funktionieren Push-Benachrichtigungen überhaupt nicht mehr
+      # (subscribeToPush und notifyOthers brechen sofort ab).
+      # Die Werte müssen daher als Repository-Secrets hinterlegt sein:
+      # Settings → Secrets and variables → Actions → New repository secret
       - name: App bauen
         run: npm run build
+        env:
+          VITE_FCM_VAPID_KEY:   ${{ secrets.VITE_FCM_VAPID_KEY }}
+          VITE_WORKER_URL:      ${{ secrets.VITE_WORKER_URL }}
+          VITE_NOTIFY_SECRET:   ${{ secrets.VITE_NOTIFY_SECRET }}
+          VITE_VAPID_PUBLIC:    ${{ secrets.VITE_VAPID_PUBLIC }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+
+      # Sicherheitsnetz: bricht ab, wenn die Secrets fehlen – sonst würde ein
+      # unbrauchbarer Build stillschweigend die funktionierende Version ersetzen.
+      - name: Konfiguration im Build prüfen
+        run: |
+          if ! grep -rq "workers.dev" dist/assets/*.js; then
+            echo "::error::Worker-URL fehlt im Build. Sind die VITE_-Secrets im Repository hinterlegt?"
+            exit 1
+          fi
+          echo "Konfiguration im Build vorhanden."
 
       - name: Auf GitHub Pages deployen
         uses: peaceiris/actions-gh-pages@v4
