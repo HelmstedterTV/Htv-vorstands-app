@@ -206,10 +206,14 @@ export async function notifyOthers(params: {
   recipientUids: string[]
 }): Promise<void> {
   if (!WORKER_URL || !NOTIFY_SECRET) return
+
+  // TODO: Diagnose – nach dem Debugging der Homescreen-Push-Meldung wieder entfernen.
+  console.log('[notifyOthers] channelName=', params.channelName, 'recipientUids=', params.recipientUids)
+
   if (params.recipientUids.length === 0) return
 
   try {
-    await fetch(`${WORKER_URL}/notify`, {
+    const res = await fetch(`${WORKER_URL}/notify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -220,6 +224,8 @@ export async function notifyOthers(params: {
         secret:        NOTIFY_SECRET,
       }),
     })
+    // TODO: Diagnose – nach dem Debugging wieder entfernen.
+    console.log('[notifyOthers] Worker-Antwort:', res.status, await res.text())
   } catch (err) {
     // Nicht blockierend – Push-Fehler sollen Nachrichtensenden nicht verhindern
     console.warn('Push notify fehlgeschlagen:', err)
