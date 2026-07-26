@@ -191,25 +191,33 @@ export async function listenForegroundMessages(): Promise<void> {
 }
 
 /**
- * Benachrichtigt alle anderen Vorstandsmitglieder über eine neue Nachricht.
- * Wird beim Senden einer Nachricht aufgerufen.
+ * Benachrichtigt die tatsächlichen Empfänger (Channel-/Projekt-Mitglieder bzw.
+ * DM-Partner) über eine neue Nachricht. Wird beim Senden einer Nachricht aufgerufen.
+ *
+ * WICHTIG: recipientUids muss die UIDs enthalten, die diese Nachricht sehen dürfen
+ * (z.B. Mitglieder eines Projekt-Channels). Der Worker verschickt Push NUR an
+ * diese UIDs – so bekommen z.B. bei einem "Pickleball"-Projekt-Channel nicht mehr
+ * alle registrierten Geräte eine Benachrichtigung, sondern nur die Mitglieder.
  */
 export async function notifyOthers(params: {
   senderUid: string
   authorName: string
   channelName?: string
+  recipientUids: string[]
 }): Promise<void> {
   if (!WORKER_URL || !NOTIFY_SECRET) return
+  if (params.recipientUids.length === 0) return
 
   try {
     await fetch(`${WORKER_URL}/notify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        senderUid:   params.senderUid,
-        authorName:  params.authorName,
-        channelName: params.channelName ?? '',
-        secret:      NOTIFY_SECRET,
+        senderUid:     params.senderUid,
+        authorName:    params.authorName,
+        channelName:   params.channelName ?? '',
+        recipientUids: params.recipientUids,
+        secret:        NOTIFY_SECRET,
       }),
     })
   } catch (err) {

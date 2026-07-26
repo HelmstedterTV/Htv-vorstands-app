@@ -7,6 +7,7 @@ import {
   limit,
   doc,
   updateDoc,
+  deleteDoc,
   arrayUnion,
   arrayRemove,
   serverTimestamp,
@@ -15,7 +16,7 @@ import { db } from '../../firebase/config'
 import type { Message } from '../../types'
 import { useAuth } from '../../context/AuthContext'
 import { useChatContext } from '../../context/ChatContext'
-import { ExternalLink, SmilePlus, Pencil, Check, X } from 'lucide-react'
+import { ExternalLink, SmilePlus, Pencil, Check, X, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
 import PollMessage from './PollMessage'
@@ -105,6 +106,16 @@ export default function MessageList({ channelId, isDm = false }: Props) {
     cancelEdit()
   }
 
+  async function deleteMessage(msg: Message) {
+    const label = msg.fileUrl && !msg.text
+      ? 'Dokument wirklich aus dem Chat löschen?'
+      : 'Nachricht wirklich löschen?'
+    if (!window.confirm(label)) return
+    if (editingId === msg.id) cancelEdit()
+    const basePath = isDm ? 'directMessages' : 'channels'
+    await deleteDoc(doc(db, basePath, channelId, 'messages', msg.id))
+  }
+
   async function toggleReaction(msg: Message, emoji: string) {
     if (!currentUser) return
     const uid = currentUser.uid
@@ -160,8 +171,19 @@ export default function MessageList({ channelId, isDm = false }: Props) {
 
             {/* Poll-Nachrichten gesondert rendern */}
             {msg.type === 'poll' && (
-              <div className="my-2">
+              <div className={`group relative my-2 flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                 <PollMessage msg={msg} channelId={channelId} isDm={isDm} />
+                {isOwn && (
+                  <button
+                    onClick={e => { e.stopPropagation(); deleteMessage(msg) }}
+                    className="absolute -top-1 right-0 transition-opacity p-1 rounded-full bg-white shadow border border-slate-200 hover:bg-slate-100 text-slate-400
+                      opacity-0 group-hover:opacity-100
+                      [@media(hover:none)]:opacity-60"
+                    title="Umfrage löschen"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
               </div>
             )}
 
@@ -184,26 +206,42 @@ export default function MessageList({ channelId, isDm = false }: Props) {
 
                 {/* Drive / Link Karte */}
                 {msg.fileUrl && (
-                  <a
-                    href={msg.fileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`rounded-xl px-3 py-2.5 text-sm flex items-center gap-2.5 max-w-xs transition-opacity hover:opacity-80 ${
-                      isOwn
-                        ? 'text-white border border-white/20'
-                        : 'bg-white border border-slate-200 text-slate-800'
-                    }`}
-                    style={isOwn ? { backgroundColor: 'var(--htv-blue-dark)' } : {}}
-                  >
-                    <span className="text-base flex-shrink-0">{getDriveIcon(msg.fileUrl)}</span>
-                    <div className="min-w-0">
-                      <div className="font-medium truncate text-xs">{msg.fileName}</div>
-                      <div className={`text-xs truncate mt-0.5 ${isOwn ? 'text-white/60' : 'text-slate-400'}`}>
-                        {msg.fileUrl.length > 40 ? msg.fileUrl.slice(0, 40) + '…' : msg.fileUrl}
+                  <div className={`flex items-end gap-1 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <a
+                      href={msg.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`rounded-xl px-3 py-2.5 text-sm flex items-center gap-2.5 max-w-xs transition-opacity hover:opacity-80 ${
+                        isOwn
+                          ? 'text-white border border-white/20'
+                          : 'bg-white border border-slate-200 text-slate-800'
+                      }`}
+                      style={isOwn ? { backgroundColor: 'var(--htv-blue-dark)' } : {}}
+                    >
+                      <span className="text-base flex-shrink-0">{getDriveIcon(msg.fileUrl)}</span>
+                      <div className="min-w-0">
+                        <div className="font-medium truncate text-xs">{msg.fileName}</div>
+                        <div className={`text-xs truncate mt-0.5 ${isOwn ? 'text-white/60' : 'text-slate-400'}`}>
+                          {msg.fileUrl.length > 40 ? msg.fileUrl.slice(0, 40) + '…' : msg.fileUrl}
+                        </div>
                       </div>
-                    </div>
-                    <ExternalLink size={13} className={`flex-shrink-0 ${isOwn ? 'text-white/60' : 'text-slate-400'}`} />
-                  </a>
+                      <ExternalLink size={13} className={`flex-shrink-0 ${isOwn ? 'text-white/60' : 'text-slate-400'}`} />
+                    </a>
+
+                    {/* Löschen (nur eigene Nachrichten; wenn zusätzlich Text vorhanden ist,
+                        übernimmt der Löschen-Button in der Text-Aktionsleiste diese Funktion) */}
+                    {isOwn && !msg.text && (
+                      <button
+                        onClick={e => { e.stopPropagation(); deleteMessage(msg) }}
+                        className="transition-opacity p-1 rounded-full hover:bg-slate-200 active:bg-slate-200 text-slate-400
+                          opacity-0 group-hover:opacity-100
+                          [@media(hover:none)]:opacity-60 flex-shrink-0"
+                        title="Dokument löschen"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 {/* Text bubble + Aktions-Buttons */}
@@ -263,6 +301,18 @@ export default function MessageList({ channelId, isDm = false }: Props) {
                             title="Nachricht bearbeiten"
                           >
                             <Pencil size={14} />
+                          </button>
+                        )}
+
+                        {isOwn && (
+                          <button
+                            onClick={e => { e.stopPropagation(); deleteMessage(msg) }}
+                            className="transition-opacity p-1 rounded-full hover:bg-slate-200 active:bg-slate-200 text-slate-400
+                              opacity-0 group-hover:opacity-100
+                              [@media(hover:none)]:opacity-60"
+                            title="Nachricht löschen"
+                          >
+                            <Trash2 size={14} />
                           </button>
                         )}
 

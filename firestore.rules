@@ -61,7 +61,9 @@ service cloud.firestore {
           (request.auth.uid == resource.data.authorId &&
            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'editedAt']))
         );
-        allow delete: if isAdmin();
+        // Löschen: Verfasser darf eigene Nachricht löschen, Admin darf alle löschen
+        allow delete: if isAdmin() ||
+          (isSignedIn() && request.auth.uid == resource.data.authorId);
       }
     }
 
@@ -84,6 +86,29 @@ service cloud.firestore {
       allow create, update, delete: if isVorstand();
     }
 
+    // Zähler-Modul (Gas/Strom/Wasser)
+    // Stammdaten, Verträge und Historie: lesen alle im Vorstand, ändern nur Admin/Vorstand
+    match /zaehler/{zaehlerId} {
+      allow read: if isVorstand();
+      allow create, update, delete: if isVorstand();
+    }
+    match /zaehlerVertraege/{vertragId} {
+      allow read: if isVorstand();
+      allow create, update, delete: if isVorstand();
+    }
+    match /zaehlerHistorie/{eintragId} {
+      allow read: if isVorstand();
+      allow create, update, delete: if isVorstand();
+    }
+    // Ablesungen: Vorstand darf erfassen und eigene Korrekturen vornehmen.
+    // Rechnungsstände (Quelle R/G) sind gegen Änderung und Löschung geschützt.
+    match /zaehlerAblesungen/{ablesungId} {
+      allow read: if isVorstand();
+      allow create: if isVorstand();
+      allow update: if isVorstand() && resource.data.quelle == 'A';
+      allow delete: if isVorstand() && resource.data.quelle == 'A';
+    }
+
     // Direktnachrichten – nur die beiden Teilnehmer dürfen lesen/schreiben
     match /directMessages/{convId} {
       allow read: if isSignedIn() &&
@@ -104,6 +129,10 @@ service cloud.firestore {
           (request.auth.uid == resource.data.authorId &&
            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'editedAt']))
         );
+        // Löschen: nur der Verfasser der Nachricht (muss zusätzlich Teilnehmer der DM sein)
+        allow delete: if isSignedIn() &&
+          request.auth.uid in get(/databases/$(database)/documents/directMessages/$(convId)).data.participants &&
+          request.auth.uid == resource.data.authorId;
       }
     }
 

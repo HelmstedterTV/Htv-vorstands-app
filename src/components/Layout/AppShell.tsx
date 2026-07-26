@@ -19,14 +19,15 @@ import {
   Mail,
   HelpCircle,
   Trophy,
+  Gauge,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useUnreadTotal } from '../../context/UnreadContext'
 
 // Versionsstand der App – manuell hochzählen, damit alle sehen, ob sie den aktuellen Stand nutzen
-const APP_VERSION = '1.1'
-const APP_VERSION_DATE = '05.07.2026'
+const APP_VERSION = '1.2'
+const APP_VERSION_DATE = '26.07.2026'
 
 const navItems = [
   { to: '/chat', label: 'Chat', icon: MessageSquare },
@@ -37,7 +38,8 @@ const navItems = [
   { to: '/admin', label: 'Mitglieder', icon: Users },
 ]
 
-const externalApps = [
+// Tools-Bereich: überwiegend externe Links, dazwischen interne Seiten (mit `to` statt `url`)
+const externalApps: { label: string; icon: typeof Globe; url?: string; to?: string }[] = [
   { label: 'HTV Homepage', url: 'https://www.helmstedtertv.de', icon: Globe },
   { label: 'HTV eBuSy', url: 'https://helmstedtertv.ebusy.de', icon: Trophy },
   { label: 'Google Mail', url: 'https://mail.google.com', icon: Mail },
@@ -45,6 +47,7 @@ const externalApps = [
   { label: 'Schl\u00fcsselliste', url: 'https://helmstedtertv.github.io/schlusselapp/', icon: Key },
   { label: 'Anlagen', url: 'https://helmstedtertv.github.io/htv-anlagen/', icon: Building2 },
   { label: 'Vertr\u00e4ge', url: 'https://helmstedtertv.github.io/htv-vertraege/', icon: FileText },
+  { label: 'Erfassung Z\u00e4hler', to: '/zaehler', icon: Gauge },
   { label: 'Hilfe', url: `${import.meta.env.BASE_URL}hilfe.html`, icon: HelpCircle },
 ]
 
@@ -111,20 +114,38 @@ export default function AppShell() {
           <div className="px-3 py-1 text-white/30 text-xs font-semibold uppercase tracking-wider">
             Tools
           </div>
-          {externalApps.map(({ label, url, icon: Icon }) => (
-            <a
-              key={url}
-              href={url}
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 hover:text-white transition-colors"
-            >
-              <Icon size={18} />
-              <span className="flex-1">{label}</span>
-              <ExternalLink size={13} className="text-white/30" />
-            </a>
-          ))}
+          {externalApps.map(({ label, url, to, icon: Icon }) =>
+            to ? (
+              <NavLink
+                key={to}
+                to={to}
+                onClick={() => setMobileOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                    isActive
+                      ? 'bg-white/20 text-white font-medium'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white'
+                  }`
+                }
+              >
+                <Icon size={18} />
+                <span className="flex-1">{label}</span>
+              </NavLink>
+            ) : (
+              <a
+                key={url}
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+              >
+                <Icon size={18} />
+                <span className="flex-1">{label}</span>
+                <ExternalLink size={13} className="text-white/30" />
+              </a>
+            )
+          )}
         </div>
       </nav>
 

@@ -10,6 +10,7 @@ import AdminPage from './pages/AdminPage'
 import ProfilPage from './pages/ProfilPage'
 import SitzungPage from './pages/SitzungPage'
 import ProtokolePage from './pages/ProtokolePage'
+import ZaehlerPage from './pages/ZaehlerPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { currentUser } = useAuth()
@@ -48,6 +49,7 @@ function AppRoutes() {
         <Route path="kalender" element={<KalenderPage />} />
         <Route path="sitzungen" element={<SitzungPage />} />
         <Route path="protokolle" element={<ProtokolePage />} />
+        <Route path="zaehler" element={<ZaehlerPage />} />
         <Route path="admin" element={<AdminPage />} />
         <Route path="profil" element={<ProfilPage />} />
       </Route>

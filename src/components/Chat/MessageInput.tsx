@@ -3,6 +3,7 @@ import type { FormEvent, KeyboardEvent } from 'react'
 import { addDoc, collection, serverTimestamp, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
 import { useAuth } from '../../context/AuthContext'
+import { useChatContext } from '../../context/ChatContext'
 import type { AppUser } from '../../types'
 import { Send, Link, X, ExternalLink, AtSign, BarChart2, Plus, Trash2 } from 'lucide-react'
 import { notifyOthers } from '../../utils/webPush'
@@ -31,8 +32,9 @@ function getLinkLabel(url: string): string {
   }
 }
 
-export default function MessageInput({ channelId, isDm = false }: Props) {
+export default function MessageInput({ channelId, isDm = false, channelName }: Props) {
   const { currentUser, userProfile } = useAuth()
+  const { channels, dmConversations } = useChatContext()
   const [text, setText] = useState('')
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [driveLink, setDriveLink] = useState('')
@@ -178,11 +180,36 @@ export default function MessageInput({ channelId, isDm = false }: Props) {
       notifyOthers({
         senderUid: currentUser.uid,
         authorName: userProfile?.displayName ?? currentUser.email ?? 'Jemand',
-        channelName: isDm ? undefined : (channelId ?? undefined),
+        channelName: isDm ? undefined : channelName,
+        recipientUids: getRecipientUids(),
       })
     } finally {
       setSending(false)
     }
+  }
+
+  // Ermittelt, welche Nutzer eine Push-Benachrichtigung erhalten sollen.
+  // Wichtig: nur tatsächliche Mitglieder/Empfänger, nicht alle registrierten Geräte
+  // (sonst bekommen z.B. bei "Pickleball"-Projekt-Channels auch Nicht-Mitglieder eine Push).
+  function getRecipientUids(): string[] {
+    if (!currentUser) return []
+
+    if (isDm) {
+      const dm = dmConversations.find(d => d.convId === channelId)
+      return (dm?.participants ?? []).filter(uid => uid !== currentUser.uid)
+    }
+
+    const channel = channels.find(c => c.id === channelId)
+    if (!channel) return []
+
+    if (channel.type === 'projekt') {
+      return (channel.members ?? []).filter(uid => uid !== currentUser.uid)
+    }
+    if (channel.type === 'vorstand') {
+      return users.filter(u => u.uid !== currentUser.uid && u.role !== 'gast').map(u => u.uid)
+    }
+    // 'vorstand_gaeste' -> alle eingeloggten Nutzer, auch Gäste
+    return users.filter(u => u.uid !== currentUser.uid).map(u => u.uid)
   }
 
   function toggleLinkInput() {
@@ -224,11 +251,13 @@ export default function MessageInput({ channelId, isDm = false }: Props) {
       setShowLinkInput(false)
       setMentionQuery(null)
 
-      // Push-Benachrichtigung an alle anderen Vorstandsmitglieder senden
+      // Push-Benachrichtigung nur an die tatsächlichen Empfänger senden
+      // (Channel-/Projekt-Mitglieder bzw. DM-Partner, nicht an alle Geräte)
       notifyOthers({
         senderUid:  currentUser.uid,
         authorName: userProfile?.displayName ?? currentUser.email ?? 'Jemand',
-        channelName: isDm ? undefined : (channelId ?? undefined),
+        channelName: isDm ? undefined : channelName,
+        recipientUids: getRecipientUids(),
       })
 
     } finally {

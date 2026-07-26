@@ -1,0 +1,7 @@
+name = "htv-push-worker"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "PUSH_SUBS"
+id = "3d0f7ade6fa74efc92cb62f27323f9bc"
